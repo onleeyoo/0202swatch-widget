@@ -61,6 +61,9 @@
   .feat p { color: var(--sub); font-size: 14.5px; }
   .list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .list .feat h3 { font-size: 15.5px; }
+  .list ol.how { margin: 8px 0 0 18px; color: var(--sub); font-size: 13.5px; display: grid; gap: 5px; }
+  .list ol.how b { color: var(--text); font-weight: 700; }
+  .list ol.how li::before { content: none; }
   .list ul { list-style: none; color: var(--sub); font-size: 13.5px; display: grid; gap: 5px; margin-top: 6px; }
   .list li::before { content: "·"; color: var(--p2); font-weight: 900; margin-right: 6px; }
   .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -88,7 +91,7 @@
 <div class="wrap">
   <nav>
     <div class="brand"><span class="dot"></span>0202<b>Swatch</b></div>
-    <div class="links"><a href="#features">기능</a><a href="#install">설치</a><a href="#help">문제 해결</a></div>
+    <div class="links"><a href="#features">기능</a><a href="#howto">사용 방법</a><a href="#install">설치</a><a href="#help">문제 해결</a></div>
   </nav>
 
   <div class="hero">
@@ -124,23 +127,26 @@
       <div class="feat"><img class="shot fit" src="img/f1.png" alt="이미지에서 뽑은 색 화면" loading="lazy"><div class="n">기능 1</div><h3>이미지·화면에서 색 조합 뽑기</h3><p>화면 영역을 캡처하거나 이미지를 넣으면 추천 조합 5색과 많이 쓰인 색 8개를 비율과 함께 뽑아줘요. 바로 프로젝트에 저장할 수 있어요.</p></div>
       <div class="feat"><img class="shot" style="object-position:center 45%" src="img/f2.png" alt="색 뽑으면 복사됨 표시가 뜨는 위젯" loading="lazy"><div class="n">기능 2</div><h3>어디서든 색 수집, 자동 복사</h3><p>위젯을 누르거나 단축키(⌥⌘C / Ctrl+Alt+C)를 누르면 확대경 스포이드가 떠요. 찍는 순간 HEX가 복사돼요.</p></div>
       <div class="feat"><img class="shot" src="img/f3.png" alt="기본 프리셋 폴더 화면" loading="lazy"><div class="n">기능 3</div><h3>0202 기본 컬러 조합</h3><p>예능 자막 기본, 정보·뉴스 그래픽, 브이로그 감성, 파스텔, 시네마틱·다큐, 레트로·Y2K, 무채색 프리셋이 들어 있어요.</p></div>
-      <div class="feat"><img class="shot" style="object-position:center 78%" src="img/f4.png" alt="프로젝트 폴더와 공유 메뉴" loading="lazy"><div class="n">기능 4</div><h3>프로젝트별 관리 · 팀 공유</h3><p>클라이언트·채널별 폴더에 색을 모아두고, 공유 코드나 파일로 함께 작업하는 사람에게 넘겨줄 수 있어요. 폴더 이름까지 그대로 가요.</p></div>
+      <div class="feat"><img class="shot" style="object-position:center 42%" src="img/f4.png" alt="프로젝트 폴더와 공유 메뉴" loading="lazy"><div class="n">기능 4</div><h3>프로젝트별 관리 · 팀 공유</h3><p>클라이언트·채널별 폴더에 색을 모아두고, 공유 코드나 파일로 함께 작업하는 사람에게 넘겨줄 수 있어요. 폴더 이름까지 그대로 가요.</p></div>
     </div>
   </section>
 
-  <section>
-    <h2>전체 기능</h2>
-    <p class="sub2">자주 쓰는 순서대로 모았어요.</p>
+  <section id="howto">
+    <h2>사용 방법</h2>
+    <p class="sub2">자주 쓰는 것부터 순서대로 모았어요.</p>
     <div class="list">
-      <div class="feat"><h3>🎯 색 뽑기</h3><ul><li>확대경 스포이드, 클릭하면 HEX 복사</li><li>단축키 직접 바꾸기</li><li>위젯 위에 '복사됨' 표시</li><li>메뉴 막대·작업 표시줄 아이콘</li></ul></div>
-      <div class="feat"><h3>🎨 현재 색 다듬기</h3><ul><li>HEX 직접 입력 (한글 자판도 OK)</li><li>R/G/B 슬라이더로 미세 조정</li><li>만든 색은 최근 색에 자동 저장</li></ul></div>
-      <div class="feat"><h3>🕘 최근 색</h3><ul><li>최근 50개까지 자동 보관</li><li>넘으면 오래된 색부터 정리</li><li>끌어서 프로젝트에 바로 저장</li></ul></div>
-      <div class="feat"><h3>📁 프로젝트 폴더</h3><ul><li>포토샵 스와치처럼 접고 펼치는 폴더</li><li>즐겨찾기·숨기기·복제·이름 바꾸기</li><li>폴더·색 순서 드래그로 변경</li></ul></div>
-      <div class="feat"><h3>✋ 색 정리</h3><ul><li>클릭 복사 · ⌥(Alt) 드래그 복제</li><li>우클릭·휴지통으로 삭제</li><li>여러 개 선택해서 한 번에 이동·삭제</li></ul></div>
-      <div class="feat"><h3>🔁 공유 · 불러오기</h3><ul><li>공유 코드 (카톡·슬랙에 붙여넣기)</li><li>.0202swatch 파일</li><li><b>포토샵·일러 스와치(.ase) 가져오기·내보내기</b></li></ul></div>
-      <div class="feat"><h3>🌐 언어</h3><ul><li>한국어 · English · 日本語</li></ul></div>
-      <div class="feat"><h3>⚙️ 편하게</h3><ul><li>로그인할 때 자동 실행</li><li>새 버전 자동 다운로드, ↻로 적용</li><li>오류 문구 누르면 진단 정보 복사</li></ul></div>
-      <div class="feat"><h3>🎬 프리미어 패널과 연동</h3><ul><li>프리미어용 0202Swatch 패널과 같은 색 데이터를 써요</li></ul></div>
+      <div class="feat"><h3>🎯 색 뽑기</h3><ol class="how"><li>화면의 동그란 위젯을 누르거나 단축키 <b>⌥⌘C</b>(윈도우 <b>Ctrl+Alt+C</b>)</li><li>확대경이 뜨면 원하는 곳을 클릭</li><li>HEX 값이 바로 복사돼요 · 취소는 Esc</li></ol></div>
+      <div class="feat"><h3>🖼 화면 캡처·이미지로 색 조합 뽑기</h3><ol class="how"><li>팔레트에서 <b>화면 영역 캡처</b> → 원하는 영역을 드래그</li><li>이미지 파일은 <b>이미지에서 색 추출</b> 또는 팔레트에 붙여넣기·끌어놓기</li><li>추천 조합을 <b>프로젝트에 추가</b>하거나 <b>새 프로젝트로 저장</b></li></ol></div>
+      <div class="feat"><h3>✋ 드래그앤드롭으로 색 저장</h3><ol class="how"><li>최근 색을 프로젝트 폴더(이름이나 펼친 안쪽)로 끌어놓기</li><li>폴더 안에서 끌면 순서 변경</li><li><b>⌥(Alt)</b>를 누른 채 끌면 복제</li></ol></div>
+      <div class="feat"><h3>➕ 지금 색 바로 넣기</h3><ol class="how"><li>폴더 맨 끝 점선 <b>＋</b>를 누르면 현재 색이 맨 앞에 추가</li><li>＋를 우클릭하면 색 고르기 창</li></ol></div>
+      <div class="feat"><h3>🎨 색 미세 조정</h3><ol class="how"><li>동그란 버튼 아래 HEX 칸에 직접 입력 (한글 자판도 OK)</li><li>R/G/B 슬라이더로 조정</li><li>만든 색은 최근 색에 자동 저장</li></ol></div>
+      <div class="feat"><h3>📁 프로젝트 만들고 정리하기</h3><ol class="how"><li><b>＋ 새 프로젝트</b>를 누르면 폴더가 생기고 바로 이름 입력</li><li>폴더를 끌어서 순서 변경, 클릭하면 접기·펼치기</li><li>이름 옆 <b>⋯</b>: 이름 바꾸기 · 즐겨찾기 · 숨기기 · 복제 · 삭제</li></ol></div>
+      <div class="feat"><h3>🗑 색 지우기</h3><ol class="how"><li>색을 우클릭 → <b>삭제</b></li><li>색을 끌면 아래에 뜨는 휴지통에 놓기</li><li><b>선택</b>을 누르고 여러 개 골라 한 번에 삭제·이동</li></ol></div>
+      <div class="feat"><h3>🔁 팀원과 공유하기</h3><ol class="how"><li>프로젝트 <b>⋯ → 공유 · 내보내기</b> → 공유 코드 복사</li><li>카톡·슬랙으로 코드 전달</li><li>받는 사람은 <b>불러오기 → 코드 붙여넣기</b> (폴더 이름까지 그대로)</li></ol></div>
+      <div class="feat"><h3>🅿️ 포토샵 스와치 가져오기·보내기</h3><ol class="how"><li><b>불러오기 → 파일 열기</b>에서 포토샵·일러 .ase 파일 선택</li><li>프로젝트 <b>⋯ → 공유 · 내보내기 → ASE로 저장</b></li><li>저장한 .ase는 포토샵·일러·AE 스와치 패널에서 불러오기</li></ol></div>
+      <div class="feat"><h3>🌐 언어 바꾸기</h3><ol class="how"><li>팔레트 제목 옆 🌐 또는 위젯 우클릭 → <b>언어 / Language</b></li><li>한국어 · English · 日本語</li></ol></div>
+      <div class="feat"><h3>⌨️ 단축키 바꾸기</h3><ol class="how"><li>위젯 우클릭 → <b>단축키 변경</b></li><li>원하는 키 조합을 누르고 저장</li><li><b>기본값</b>으로 되돌리기도 가능</li></ol></div>
+      <div class="feat"><h3>⚙️ 위젯 다루기</h3><ol class="how"><li>위젯을 끌어서 위치 이동</li><li>마우스를 올리면 나오는 버튼으로 팔레트 열기</li><li>새 버전은 자동으로 받아지고, 팔레트 <b>↻</b>를 누르면 적용</li></ol></div>
     </div>
   </section>
 
