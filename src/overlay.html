@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>0202Swatch picker</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; cursor: none; user-select: none; }
+  #shot { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #loupe { position: fixed; width: 150px; height: 150px; border-radius: 50%; overflow: hidden; pointer-events: none; display: none;
+           border: 3px solid rgba(255,255,255,.9); box-shadow: 0 0 0 1px rgba(0,0,0,.5), 0 0 0 6px rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.55); }
+  #zoom { width: 150px; height: 150px; image-rendering: pixelated; display: block; }
+  #center { position: fixed; width: 10px; height: 10px; border: 2px solid #fff; box-shadow: 0 0 0 1px #000; pointer-events: none; display: none; }
+  #label { position: fixed; pointer-events: none; display: none; padding: 4px 9px; border-radius: 12px; background: rgba(30,24,42,.92); color: #f4f1fa;
+           border: 1px solid rgba(255,255,255,.18); box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 6px 18px rgba(0,0,0,.45); font: 700 12px ui-monospace, Menlo, Consolas, monospace; white-space: nowrap; }
+  #label i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; box-shadow: 0 0 0 1px rgba(255,255,255,.4); }
+  #hint { position: fixed; left: 50%; top: 24px; transform: translateX(-50%); padding: 7px 14px; border-radius: 16px; background: rgba(30,24,42,.88);
+          color: #f4f1fa; font: 600 13px -apple-system, "Segoe UI", "Malgun Gothic", sans-serif; border: 1px solid rgba(255,255,255,.16); box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 8px 24px rgba(0,0,0,.45); backdrop-filter: blur(14px); pointer-events: none; }
+</style>
+</head>
+<body>
+<canvas id="shot"></canvas>
+<div id="loupe"><canvas id="zoom" width="15" height="15"></canvas></div>
+<div id="center"></div>
+<div id="label"><i></i><span></span></div>
+<div id="hint"></div>
+<script>
+  /* full-screen picker: shows a screenshot of this display, a magnifier follows the cursor, click = pick */
+  const q = new URLSearchParams(location.search), L = q.get("lang") || "ko";
+  document.getElementById("hint").textContent = L === "ko" ? "클릭하면 그 색을 가져와요 · ESC 취소" : L === "ja" ? "クリックで色を取得 · Escでキャンセル" : "Click to pick a color · Esc to cancel";
+  const shot = document.getElementById("shot"), zoom = document.getElementById("zoom"), zc = zoom.getContext("2d");
+  const loupe = document.getElementById("loupe"), center = document.getElementById("center"), label = document.getElementById("label");
+  let data = null, iw = 0, ih = 0, cur = null;
+  const img = new Image();
+  img.onload = () => {
+    iw = img.naturalWidth; ih = img.naturalHeight;
+    shot.width = iw; shot.height = ih;
+    const c = shot.getContext("2d"); c.drawImage(img, 0, 0);
+    data = c.getImageData(0, 0, iw, ih).data;
+    zc.imageSmoothingEnabled = false;
+  };
+  img.onerror = () => window.sw.overlayDone(null);
+  img.src = "file://" + encodeURI(q.get("img").replace(/\\/g, "/").replace(/^([A-Za-z]:)/, "/$1"));
+  function hx(n) { n = n.toString(16); return n.length < 2 ? "0" + n : n; }
+  function at(cx, cy) {
+    const x = Math.max(0, Math.min(iw - 1, Math.floor(cx / innerWidth * iw))), y = Math.max(0, Math.min(ih - 1, Math.floor(cy / innerHeight * ih)));
+    const o = (y * iw + x) * 4;
+    return { x, y, hex: ("#" + hx(data[o]) + hx(data[o + 1]) + hx(data[o + 2])).toUpperCase() };
+  }
+  addEventListener("mousemove", (e) => {
+    if (!data) return;
+    cur = at(e.clientX, e.clientY);
+    zc.clearRect(0, 0, 15, 15);
+    zc.drawImage(shot, cur.x - 7, cur.y - 7, 15, 15, 0, 0, 15, 15);
+    let lx = e.clientX + 24, ly = e.clientY + 24;
+    if (lx + 160 > innerWidth) lx = e.clientX - 174;
+    if (ly + 190 > innerHeight) ly = e.clientY - 214;
+    loupe.style.left = lx + "px"; loupe.style.top = ly + "px"; loupe.style.display = "block";
+    loupe.style.borderColor = cur.hex;
+    center.style.left = (lx + 71) + "px"; center.style.top = (ly + 71) + "px"; center.style.display = "block";
+    label.style.left = (lx + 75 - 40) + "px"; label.style.top = (ly + 162) + "px"; label.style.display = "block";
+    label.querySelector("i").style.background = cur.hex; label.querySelector("span").textContent = cur.hex.slice(1);
+  });
+  addEventListener("mousedown", (e) => {
+    if (e.button === 2) return window.sw.overlayDone(null);
+    if (e.button !== 0 || !data) return;
+    window.sw.overlayDone(at(e.clientX, e.clientY).hex);
+  });
+  addEventListener("contextmenu", (e) => e.preventDefault());
+  addEventListener("keydown", (e) => { if (e.key === "Escape") window.sw.overlayDone(null); });
+</script>
+</body>
+</html>

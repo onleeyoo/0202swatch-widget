@@ -1,0 +1,72 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Shortcut</title>
+<style>
+  :root { --purple: #8a5cff; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body { background: #141019; color: #ece8f5; font: 13px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", sans-serif; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 10px; -webkit-app-region: drag; user-select: none; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; }
+  h1 { font-size: 13.5px; font-weight: 700; }
+  .box { flex: 1; border-radius: 12px; background: rgba(255,255,255,.05); border: 1.5px dashed rgba(138,92,255,.6); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .box.set { border-style: solid; background: rgba(138,92,255,.16); }
+  .box.bad { border-color: #e5484d; }
+  #combo { font: 700 22px ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 1px; }
+  #hint { font-size: 11px; color: #a39cb5; }
+  .row { display: flex; gap: 6px; -webkit-app-region: no-drag; }
+  .row .grow { flex: 1; }
+  button { font: inherit; font-size: 12px; font-weight: 600; padding: 7px 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.07); color: #ece8f5; cursor: pointer; }
+  button.main { background: linear-gradient(180deg, #8a5cff, #6c3ff0); border-color: rgba(255,255,255,.22); }
+  button:disabled { opacity: .4; cursor: default; }
+  .lnk { background: none; border: none; color: #a39cb5; padding: 7px 4px; }
+</style></head>
+<body>
+<h1 id="ttl"></h1>
+<div class="box" id="box"><div id="combo"></div><div id="hint"></div></div>
+<div class="row"><button class="lnk" id="def"></button><span class="grow"></span><button id="cancel"></button><button class="main" id="ok" disabled></button></div>
+<script>
+(async function () {
+  const $ = (q) => document.querySelector(q), info = await window.sw.keyGet();
+  const L = (ko, en, ja) => info.lang === "ko" ? ko : info.lang === "ja" ? (ja || en) : en;
+  let acc = null;
+  $("#ttl").textContent = L("단축키 변경 · 화면에서 색 뽑기", "Change shortcut · Pick a color", "ショートカット変更");
+  $("#combo").textContent = info.label;
+  const baseHint = info.mac ? L("새 단축키를 누르세요 (⌘ ⌥ ⌃ ⇧ + 키)", "Press the new shortcut (⌘ ⌥ ⌃ ⇧ + key)", "新しいショートカットを押してください") : L("새 단축키를 누르세요 (Ctrl Alt Shift + 키)", "Press the new shortcut (Ctrl Alt Shift + key)", "新しいショートカットを押してください");
+  $("#hint").textContent = baseHint;
+  $("#def").textContent = L("기본값 ", "Default ", "既定 ") + info.defLabel;
+  $("#cancel").textContent = L("취소", "Cancel", "キャンセル");
+  $("#ok").textContent = L("저장", "Save", "保存");
+  const keyOf = (e) => {
+    let m;
+    if ((m = /^Key([A-Z])$/.exec(e.code))) return m[1];
+    if ((m = /^Digit(\d)$/.exec(e.code))) return m[1];
+    if ((m = /^(F\d{1,2})$/.exec(e.code))) return m[1];
+    return { Space: "Space", Comma: ",", Period: ".", Slash: "/", Semicolon: ";", Quote: "'", BracketLeft: "[", BracketRight: "]", Minus: "-", Equal: "=", Backquote: "`" }[e.code] || null;
+  };
+  async function choose(a) {
+    acc = a; $("#combo").textContent = await window.sw.keyLabel(a);
+    $("#box").className = "box set"; $("#hint").textContent = L("저장을 누르면 바로 적용돼요", "Press Save to apply", "保存で反映"); $("#ok").disabled = false;
+  }
+  document.addEventListener("keydown", (e) => {
+    e.preventDefault();
+    if (e.key === "Escape" && !e.metaKey && !e.ctrlKey && !e.altKey) return window.sw.keyClose();
+    if (e.key === "Enter" && acc) return save();
+    const k = keyOf(e); if (!k) return;
+    const mods = [];
+    if (info.mac) { if (e.ctrlKey) mods.push("Control"); if (e.altKey) mods.push("Alt"); if (e.shiftKey) mods.push("Shift"); if (e.metaKey) mods.push("Command"); }
+    else { if (e.ctrlKey) mods.push("Control"); if (e.altKey) mods.push("Alt"); if (e.shiftKey) mods.push("Shift"); if (e.metaKey) mods.push("Super"); }
+    const onlyShift = mods.length === 1 && mods[0] === "Shift";
+    if ((!mods.length || onlyShift) && !/^F\d/.test(k)) { $("#box").className = "box bad"; $("#hint").textContent = L("⌘·⌥·⌃ 중 하나와 같이 눌러주세요", "Use it with ⌘, ⌥ or Ctrl", "修飾キーと一緒に押してください"); return; }
+    choose(mods.concat(k).join("+"));
+  });
+  async function save() {
+    if (!acc) return;
+    const r = await window.sw.keySet(acc);
+    if (r.ok) return window.sw.keyClose();
+    acc = null; $("#ok").disabled = true; $("#box").className = "box bad";
+    $("#hint").textContent = L("다른 앱이 쓰는 단축키예요 · 다른 조합을 눌러주세요", "Taken by another app · try another", "他のアプリが使用中です");
+  }
+  $("#ok").onclick = save;
+  $("#cancel").onclick = () => window.sw.keyClose();
+  $("#def").onclick = () => choose(info.def);
+})();
+</script>
+</body></html>

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0202Swatch · 어디서든 색 뽑는 스와치 위젯</title>
+<meta name="description" content="화면 어디서든 스포이드로 색을 뽑아 HEX를 복사하고, 프로젝트별로 색을 저장·공유하는 맥·윈도우 위젯. 공이공이 프로덕션 제작.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0b0910; --card: #15111d; --card2: #1c1626; --edge: rgba(255,255,255,.09); --text: #f1edf8; --sub: #b4abc6; --faint: #7d748f; --p: #8a5cff; --p2: #b69bff; --ok: #8fe3a9; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: radial-gradient(90% 50% at 10% 0%, rgba(124,77,255,.22), transparent 60%), radial-gradient(60% 40% at 100% 20%, rgba(255,90,170,.10), transparent 60%), var(--bg);
+    color: var(--text); font: 15px/1.65 "Noto Sans KR", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--p2); }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  .brand { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 500; color: var(--sub); }
+  .brand b { color: var(--text); font-weight: 900; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, var(--p) 60%); box-shadow: 0 0 10px var(--p); }
+  nav .links a { color: var(--sub); text-decoration: none; margin-left: 18px; font-size: 14px; }
+  nav .links a:hover { color: var(--text); }
+  .hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: center; padding: 40px 0 70px; }
+  .tag { display: inline-block; font-size: 12.5px; font-weight: 700; color: var(--p2); background: rgba(138,92,255,.14); border: 1px solid rgba(182,155,255,.3); padding: 4px 11px; border-radius: 99px; margin-bottom: 18px; }
+  h1 { font-size: 46px; line-height: 1.18; font-weight: 900; letter-spacing: -1.2px; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, #ffe400, #ff6fb0 45%, #8a5cff 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { margin-top: 18px; color: var(--sub); font-size: 16.5px; }
+  .dl { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .btn { display: inline-flex; align-items: center; gap: 9px; padding: 13px 20px; border-radius: 14px; text-decoration: none; font-weight: 700; font-size: 15px; color: #fff; border: 1px solid rgba(255,255,255,.18); transition: transform .12s, filter .15s; }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+  .btn.pri { background: linear-gradient(180deg, #8a5cff, #6c3ff0); box-shadow: 0 10px 28px rgba(108,63,240,.4), inset 0 1px 0 rgba(255,255,255,.3); }
+  .btn.sec { background: var(--card2); }
+  .btn svg { width: 18px; height: 18px; }
+  .meta { margin-top: 12px; font-size: 12.5px; color: var(--faint); }
+  .meta a { color: var(--faint); }
+  /* little widget mock */
+  .mock { position: relative; height: 360px; }
+  .mock .panel { position: absolute; right: 0; top: 0; width: 280px; background: var(--card); border: 1px solid var(--edge); border-radius: 18px; padding: 16px; box-shadow: 0 30px 60px rgba(0,0,0,.5); }
+  .mock .t { font-size: 12.5px; font-weight: 700; margin-bottom: 10px; }
+  .mock .cur { display: flex; gap: 14px; align-items: center; background: rgba(255,255,255,.04); border: 1px solid var(--edge); border-radius: 14px; padding: 12px; }
+  .mock .orb { width: 66px; height: 66px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.4), transparent 50%), #FFE400; flex: none; display: grid; place-items: center; }
+  .mock .bars { flex: 1; display: grid; gap: 9px; }
+  .mock .bar { height: 6px; border-radius: 3px; }
+  .mock .hex { font: 700 13px ui-monospace, Menlo, monospace; margin-top: 8px; }
+  .mock .tiles { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-top: 12px; }
+  .mock .tiles i { aspect-ratio: 1; border-radius: 6px; }
+  .mock .folder { margin-top: 12px; font-size: 12px; color: var(--sub); background: rgba(255,255,255,.04); border-radius: 9px; padding: 7px 10px; }
+  .mock .bubble { position: absolute; left: 10px; bottom: 10px; width: 64px; height: 64px; border-radius: 50%; background: #2EFB52; box-shadow: 0 8px 24px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.3); display: grid; place-items: center; font: 700 10px ui-monospace, monospace; color: #133; }
+  .mock .toast { position: absolute; left: -6px; bottom: 84px; background: #1c1626; border: 1px solid var(--edge); border-radius: 99px; padding: 6px 12px; font: 700 12px ui-monospace, monospace; display: flex; gap: 7px; align-items: center; }
+  .mock .toast b { width: 12px; height: 12px; border-radius: 50%; background: #2EFB52; }
+  section { padding: 60px 0; border-top: 1px solid var(--edge); }
+  h2 { font-size: 28px; font-weight: 900; letter-spacing: -.6px; margin-bottom: 8px; }
+  .sub2 { color: var(--sub); margin-bottom: 28px; }
+  .grid4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .feat { background: var(--card); border: 1px solid var(--edge); border-radius: 18px; padding: 22px; }
+  .feat .n { font-size: 12px; font-weight: 900; color: var(--p2); letter-spacing: .5px; }
+  .feat h3 { font-size: 18px; margin: 6px 0 6px; }
+  .feat p { color: var(--sub); font-size: 14.5px; }
+  .list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .list .feat h3 { font-size: 15.5px; }
+  .list ul { list-style: none; color: var(--sub); font-size: 13.5px; display: grid; gap: 5px; margin-top: 6px; }
+  .list li::before { content: "·"; color: var(--p2); font-weight: 900; margin-right: 6px; }
+  .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .steps ol { margin: 10px 0 0 18px; color: var(--sub); font-size: 14.5px; display: grid; gap: 6px; }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+  pre { background: #0e0b14; border: 1px solid var(--edge); border-radius: 12px; padding: 12px 14px; overflow-x: auto; color: #d9d2ea; margin-top: 10px; white-space: pre; }
+  code { background: rgba(255,255,255,.07); padding: 1px 6px; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--card); border: 1px solid var(--edge); border-radius: 14px; overflow: hidden; }
+  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--edge); vertical-align: top; }
+  th { color: var(--sub); font-weight: 700; font-size: 13px; background: var(--card2); }
+  td:first-child { font-weight: 700; width: 34%; }
+  td { color: var(--sub); } td:first-child { color: var(--text); }
+  details { background: var(--card); border: 1px solid var(--edge); border-radius: 14px; padding: 14px 18px; margin-top: 12px; }
+  details summary { cursor: pointer; font-weight: 700; }
+  footer { padding: 40px 0 60px; color: var(--faint); font-size: 13px; border-top: 1px solid var(--edge); }
+  @media (max-width: 760px) {
+    h1 { font-size: 34px; }
+    .hero, .grid4, .list, .steps { grid-template-columns: 1fr; }
+    .mock { height: 330px; } .mock .panel { position: relative; width: 100%; }
+    nav .links { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <div class="brand"><span class="dot"></span>0202<b>Swatch</b></div>
+    <div class="links"><a href="#features">기능</a><a href="#install">설치</a><a href="#help">문제 해결</a></div>
+  </nav>
+
+  <div class="hero">
+    <div>
+      <span class="tag">무료 · 맥 / 윈도우</span>
+      <h1>화면 어디서든<br><em>색 뽑고, 저장하고, 공유</em></h1>
+      <p class="lead">프리미어에 없는 스와치, 따로 만들었어요. 화면에 떠 있는 위젯을 누르면 스포이드로 아무 곳에서나 색을 뽑고 HEX가 바로 복사돼요. 프로젝트별로 색을 모아두고 팀원과 공유할 수 있어요.</p>
+      <div class="dl">
+        <a class="btn pri" id="dlMac" href="https://github.com/onleeyoo/0202swatch-widget/releases/latest/download/0202Swatch-mac.dmg"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9C5.9 6.8 4 8 3 9.8c-2 3.5-.5 8.6 1.4 11.4.9 1.4 2 2.9 3.5 2.8 1.4-.1 1.9-.9 3.6-.9s2.1.9 3.6.9c1.5 0 2.4-1.4 3.3-2.7 1-1.6 1.5-3.1 1.5-3.2 0 0-2.9-1.1-3.5-5.5zM13.8 4.9c.8-.9 1.3-2.2 1.1-3.5-1.1.1-2.4.7-3.2 1.6-.7.8-1.3 2.1-1.2 3.4 1.2.1 2.5-.6 3.3-1.5z"/></svg>맥용 다운로드</a>
+        <a class="btn sec" id="dlWin" href="https://github.com/onleeyoo/0202swatch-widget/releases/latest/download/0202Swatch-Windows-Setup.exe"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5l7.4-1v7.1H3zM11.3 4.4L21 3v8.6h-9.7zM3 12.5h7.4v7.1L3 18.6zM11.3 12.5H21V21l-9.7-1.4z"/></svg>윈도우용 다운로드</a>
+      </div>
+      <p class="meta">현재 버전 <b id="ver">v1.1.0</b> · 설치하면 새 버전은 자동으로 받아져요 · <a href="https://github.com/onleeyoo/0202swatch-widget/releases/latest/download/0202Swatch-mac.zip">dmg가 안 열리면 zip</a></p>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <div class="panel">
+        <div class="t">Current Color</div>
+        <div class="cur">
+          <div class="orb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a1424" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3z" fill="#1a1424"/><path d="M12.6 8.6L4 17.2V20h2.8l8.6-8.6"/></svg></div>
+          <div class="bars"><i class="bar" style="background:linear-gradient(90deg,#00e400,#ffe400)"></i><i class="bar" style="background:linear-gradient(90deg,#fe0000,#ffe400)"></i><i class="bar" style="background:linear-gradient(90deg,#ffe400,#ffe4ff)"></i><div class="hex"># FEE500</div></div>
+        </div>
+        <div class="tiles"><i style="background:#fff"></i><i style="background:#ffe400"></i><i style="background:#ffc400"></i><i style="background:#4fc3f7"></i><i style="background:#ff6fb0"></i><i style="background:#a3e35e"></i><i style="background:#ff9f1c"></i><i style="background:#ff3b30"></i></div>
+        <div class="folder">▸ 📁 기본 프리셋 &nbsp;·&nbsp; ▾ 📁 내 프로젝트</div>
+      </div>
+      <div class="toast"><b></b>2EFB52 복사됨</div>
+      <div class="bubble">2EFB52</div>
+    </div>
+  </div>
+
+  <section id="features">
+    <h2>이런 걸 할 수 있어요</h2>
+    <p class="sub2">프리미어 내장 플러그인이 아니라 컴퓨터에 설치하는 위젯이라 캡컷·파이널컷·포토샵 등 어떤 프로그램을 쓰든 같이 쓸 수 있어요.</p>
+    <div class="grid4">
+      <div class="feat"><div class="n">기능 1</div><h3>이미지·화면에서 색 조합 뽑기</h3><p>화면 영역을 캡처하거나 이미지를 넣으면 추천 조합 5색과 많이 쓰인 색 8개를 비율과 함께 뽑아줘요. 바로 프로젝트에 저장할 수 있어요.</p></div>
+      <div class="feat"><div class="n">기능 2</div><h3>어디서든 색 수집, 자동 복사</h3><p>위젯을 누르거나 단축키(⌥⌘C / Ctrl+Alt+C)를 누르면 확대경 스포이드가 떠요. 찍는 순간 HEX가 복사돼요.</p></div>
+      <div class="feat"><div class="n">기능 3</div><h3>0202 기본 컬러 조합</h3><p>예능 자막 기본, 정보·뉴스 그래픽, 브이로그 감성, 파스텔, 시네마틱·다큐, 레트로·Y2K, 무채색 프리셋이 들어 있어요.</p></div>
+      <div class="feat"><div class="n">기능 4</div><h3>프로젝트별 관리 · 팀 공유</h3><p>클라이언트·채널별 폴더에 색을 모아두고, 공유 코드나 파일로 함께 작업하는 사람에게 넘겨줄 수 있어요. 폴더 이름까지 그대로 가요.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>전체 기능</h2>
+    <p class="sub2">자주 쓰는 순서대로 모았어요.</p>
+    <div class="list">
+      <div class="feat"><h3>🎯 색 뽑기</h3><ul><li>확대경 스포이드, 클릭하면 HEX 복사</li><li>단축키 직접 바꾸기</li><li>위젯 위에 '복사됨' 표시</li><li>메뉴 막대·작업 표시줄 아이콘</li></ul></div>
+      <div class="feat"><h3>🎨 현재 색 다듬기</h3><ul><li>HEX 직접 입력 (한글 자판도 OK)</li><li>R/G/B 슬라이더로 미세 조정</li><li>만든 색은 최근 색에 자동 저장</li></ul></div>
+      <div class="feat"><h3>🕘 최근 색</h3><ul><li>최근 50개까지 자동 보관</li><li>넘으면 오래된 색부터 정리</li><li>끌어서 프로젝트에 바로 저장</li></ul></div>
+      <div class="feat"><h3>📁 프로젝트 폴더</h3><ul><li>포토샵 스와치처럼 접고 펼치는 폴더</li><li>즐겨찾기·숨기기·복제·이름 바꾸기</li><li>폴더·색 순서 드래그로 변경</li></ul></div>
+      <div class="feat"><h3>✋ 색 정리</h3><ul><li>클릭 복사 · ⌥(Alt) 드래그 복제</li><li>우클릭·휴지통으로 삭제</li><li>여러 개 선택해서 한 번에 이동·삭제</li></ul></div>
+      <div class="feat"><h3>🔁 공유 · 불러오기</h3><ul><li>공유 코드 (카톡·슬랙에 붙여넣기)</li><li>.0202swatch 파일</li><li><b>포토샵·일러 스와치(.ase) 가져오기·내보내기</b></li></ul></div>
+      <div class="feat"><h3>🌐 언어</h3><ul><li>한국어 · English · 日本語</li></ul></div>
+      <div class="feat"><h3>⚙️ 편하게</h3><ul><li>로그인할 때 자동 실행</li><li>새 버전 자동 다운로드, ↻로 적용</li><li>오류 문구 누르면 진단 정보 복사</li></ul></div>
+      <div class="feat"><h3>🎬 프리미어 패널과 연동</h3><ul><li>프리미어용 0202Swatch 패널과 같은 색 데이터를 써요</li></ul></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>설치</h2>
+    <p class="sub2">공인 인증서 없이 배포하는 무료 앱이라 처음 열 때 한 번 허용이 필요해요.</p>
+    <div class="steps">
+      <div class="feat"><h3>맥</h3><ol>
+        <li><b>맥용 다운로드</b>로 받은 dmg를 열고 0202Swatch를 <b>Applications</b>로 끌어다 놓아요.</li>
+        <li>응용 프로그램 폴더에서 0202Swatch를 열어요.</li>
+        <li>"확인되지 않은 개발자" 창이 뜨면 <b>시스템 설정 → 개인정보 보호 및 보안</b> 맨 아래 <b>그래도 열기</b>를 눌러요.</li>
+        <li>화면 오른쪽 아래에 동그란 위젯이 생기면 끝!</li></ol></div>
+      <div class="feat"><h3>윈도우</h3><ol>
+        <li><b>윈도우용 다운로드</b>로 받은 exe를 실행해요.</li>
+        <li>"Windows의 PC 보호" 파란 창이 뜨면 <b>추가 정보 → 실행</b>을 눌러요.</li>
+        <li>자동으로 설치되고 바로 실행돼요. 바탕화면과 시작 메뉴에도 생겨요.</li></ol></div>
+    </div>
+    <details><summary>Claude에게 설치 맡기기 (명령어)</summary>
+      <p style="color:var(--sub);margin-top:10px;font-size:14px">받은 파일이 다운로드 폴더에 있을 때, 아래를 Claude에게 주고 "설치해줘"라고 하면 돼요.</p>
+<pre># macOS
+DMG="$(ls ~/Downloads/0202Swatch*-mac.dmg | tail -1)"
+MNT="$(hdiutil attach -nobrowse "$DMG" | tail -1 | awk -F'\t' '{print $NF}')"
+rm -rf /Applications/0202Swatch.app && cp -R "$MNT/0202Swatch.app" /Applications/
+hdiutil detach "$MNT"
+xattr -dr com.apple.quarantine /Applications/0202Swatch.app
+open /Applications/0202Swatch.app</pre>
+<pre># Windows (PowerShell)
+$f = Get-ChildItem "$env:USERPROFILE\Downloads\0202Swatch*-Windows-Setup.exe" | Select-Object -Last 1
+Unblock-File $f.FullName
+Start-Process $f.FullName -ArgumentList "/S" -Wait</pre>
+    </details>
+  </section>
+
+  <section id="help">
+    <h2>잘 안 될 때</h2>
+    <p class="sub2">대부분 아래에서 해결돼요.</p>
+    <table>
+      <tr><th>증상</th><th>해결</th></tr>
+      <tr><td>dmg가 안 열려요 / "손상됨"</td><td>다운로드가 덜 된 경우예요. 다시 받아주세요. 그래도 안 되면 <a href="https://github.com/onleeyoo/0202swatch-widget/releases/latest/download/0202Swatch-mac.zip">zip</a>을 풀어서 0202Swatch를 응용 프로그램 폴더로 옮겨주세요.</td></tr>
+      <tr><td>"확인되지 않은 개발자"</td><td>시스템 설정 → 개인정보 보호 및 보안 → <b>그래도 열기</b>. 또는 터미널에 <code>xattr -dr com.apple.quarantine /Applications/0202Swatch.app</code></td></tr>
+      <tr><td>위젯이 안 보여요</td><td>메뉴 막대(윈도우는 작업 표시줄 오른쪽) 스포이드 아이콘 → <b>위젯 보이기</b> 또는 <b>위젯 위치 초기화</b></td></tr>
+      <tr><td>클릭해도 확대경이 안 떠요 (맥)</td><td>위젯을 한 번 더 누르면 화면 캡처 방식으로 바뀌어요. 시스템 설정 → 개인정보 보호 및 보안 → <b>화면 기록</b>에서 0202Swatch를 허용해주세요.</td></tr>
+      <tr><td>단축키가 안 돼요</td><td>다른 앱이 같은 단축키를 쓰는 경우예요. 위젯 우클릭 → <b>단축키 변경</b>에서 다른 조합으로 바꿔주세요.</td></tr>
+      <tr><td>윈도우 백신이 막아요</td><td>서명 안 된 새 프로그램이라 그래요. <b>허용</b> 또는 <b>추가 정보 → 실행</b></td></tr>
+      <tr><td>그 밖의 오류</td><td>팔레트 맨 아래 빨간 문구를 누르면 진단 정보가 복사돼요. 그대로 DM으로 보내주세요.</td></tr>
+    </table>
+  </section>
+
+  <footer>
+    © 0202 Production · 공이공이 프로덕션 · 무료로 배포해요. 다시 배포·판매는 하지 말아주세요.<br>
+    인스타그램 <a href="https://www.instagram.com/yooj2_2/">@yooj2_2</a>
+  </footer>
+</div>
+<script>
+  /* show the live version from the update file */
+  fetch("version.json", { cache: "no-store" }).then((r) => r.json()).then((j) => { if (j && j.v) document.getElementById("ver").textContent = "v" + j.v; }).catch(() => {});
+</script>
+</body>
+</html>
