@@ -275,7 +275,7 @@ function createWidget() {
   if (IS_MAC) widget.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   hookLogs(widget, "widget");
   widget.loadFile(path.join(__dirname, "widget.html"), { query: { lang: lang() } });
-  widget.once("ready-to-show", () => widget.showInactive());
+  widget.once("ready-to-show", () => { if (!state.widgetHidden) widget.showInactive(); });   /* stays hidden after restart if the user hid it */
 }
 function openPalette() {
   if (palette && !palette.isDestroyed()) { palette.show(); if (IS_MAC) app.focus({ steal: true }); palette.focus(); return; }
@@ -308,7 +308,7 @@ function menuTemplate() {
     { label: T("팔레트 열기", "Open palette", "パレットを開く"), click: openPalette },
     { label: T("최근 색", "Recent colors", "最近の色"), enabled: state.recent.length > 0, submenu: state.recent.slice(0, 15).map(h => ({ label: h + "  " + T("복사", "copy", "コピー"), click: () => gotColor(h) })) },
     { type: "separator" },
-    { label: T("위젯 보이기", "Show widget", "ウィジェットを表示"), type: "checkbox", checked: !!(widget && widget.isVisible()), click: (i) => { if (i.checked) widget.showInactive(); else widget.hide(); } },
+    { label: T("위젯 보이기", "Show widget", "ウィジェットを表示"), type: "checkbox", checked: !!(widget && widget.isVisible()), click: (i) => { state.widgetHidden = !i.checked; saveState(); if (i.checked) widget.showInactive(); else widget.hide(); } },
     { label: T("항상 위에", "Always on top", "常に手前"), type: "checkbox", checked: state.onTop, click: (i) => { state.onTop = i.checked; widget.setAlwaysOnTop(i.checked, "floating"); saveState(); } },
     { label: T("로그인할 때 자동 실행", "Open at login", "ログイン時に起動"), type: "checkbox", checked: app.getLoginItemSettings().openAtLogin, click: (i) => app.setLoginItemSettings({ openAtLogin: i.checked }) },
     { label: T("언어 / Language", "Language / 언어", "言語 / Language"), submenu: [["ko", "한국어"], ["en", "English"], ["ja", "日本語"]].map(([k, n]) => ({ label: n, type: "radio", checked: lang() === k, click: () => setLang(k) })) },
@@ -656,7 +656,7 @@ app.whenReady().then(() => {
   setTimeout(checkUpdate, 8000);
   setInterval(checkUpdate, 6 * 60 * 60 * 1000);
 });
-app.on("second-instance", () => { if (widget) widget.showInactive(); openPalette(); });
+app.on("second-instance", () => { if (widget) { state.widgetHidden = false; saveState(); widget.showInactive(); } openPalette(); });
 app.on("before-quit", () => log("quit"));
 app.on("will-quit", () => globalShortcut.unregisterAll());
 app.on("window-all-closed", () => { /* keep running in the menu bar / tray */ });
