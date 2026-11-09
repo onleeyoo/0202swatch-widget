@@ -67,4 +67,33 @@ function aseDecode(buf, fb) {
   return groups;
 }
 function safeName(s) { return String(s || "0202Swatch").replace(/[\\/:*?"<>|]/g, "_"); }
-module.exports = { normHex, liveGroups, toCode, parseText, aseEncode, aseDecode, safeName };
+
+/* color-chip share image (HTML rendered offscreen -> PNG) */
+function chipHtml(project, groups, foot) {
+  const esc = t => String(t || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const lum = h => { const n = parseInt(h.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255; };
+  const multi = groups.length > 1;
+  const body = groups.map(g => (multi ? '<div class="gn">' + esc(g.name) + '</div>' : '') + '<div class="grid">' + g.colors.map(c => {
+    const h = (normHex(c.h) || "#000000").toUpperCase();
+    return '<div class="chip"><div class="sw" style="background:' + h + (lum(h) < .08 ? ';box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)' : '') + '"></div><div class="lb"><b>' + h + '</b>' + (c.n ? '<span>' + esc(c.n) + '</span>' : '') + '</div></div>';
+  }).join("") + '</div>').join("");
+  const n = groups.reduce((a, g) => a + g.colors.length, 0);
+  return '<!doctype html><html><head><meta charset="utf-8"><style>' +
+    '*{box-sizing:border-box;margin:0;padding:0}html,body{background:#0b0910}' +
+    'body{width:1080px;padding:56px;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",sans-serif;color:#f1edf8}' +
+    '.card{background:#15111d;border:1px solid rgba(255,255,255,.09);border-radius:32px;padding:48px 48px 36px}' +
+    '.top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:34px}' +
+    'h1{font-size:46px;font-weight:900;letter-spacing:-1px;line-height:1.15;word-break:keep-all}.cnt{color:#8a8197;font-size:20px;font-weight:700;white-space:nowrap;padding-left:20px}' +
+    '.gn{font-size:22px;font-weight:800;color:#b69bff;margin:26px 0 14px}.gn:first-child{margin-top:0}' +
+    '.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}' +
+    '.chip{border-radius:20px;overflow:hidden;background:#1c1626;box-shadow:0 0 0 1px rgba(255,255,255,.08)}' +
+    '.sw{aspect-ratio:1/0.82}.lb{padding:14px 16px 16px;display:grid;gap:3px}' +
+    '.lb b{font:800 22px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.3px}.lb span{font-size:16px;color:#9d94ae;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.foot{display:flex;align-items:center;justify-content:space-between;margin-top:36px;padding-top:24px;border-top:2px solid rgba(255,255,255,.08)}' +
+    '.logo{display:flex;align-items:center;gap:12px;font-size:26px;color:#b4abc6;font-weight:500}.logo b{color:#f1edf8;font-weight:900}' +
+    '.dot{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#8a5cff 60%);box-shadow:0 0 14px #8a5cff}' +
+    '.orb svg{width:22px;height:22px;color:#1a1424}.ft{font-size:17px;color:#a49bb3}' +
+    '</style></head><body><div class="card"><div class="top"><h1>' + esc(project) + '</h1></div>' + body +
+    '<div class="foot"><div class="logo"><span class="dot"></span><span>0202<b>Swatch</b></span></div></div></div></body></html>';
+}
+module.exports = { normHex, liveGroups, toCode, parseText, aseEncode, aseDecode, safeName, chipHtml };

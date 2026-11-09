@@ -318,6 +318,17 @@ function trayIcon() {
 function rebuildTray() { if (tray) tray.setContextMenu(Menu.buildFromTemplate(menuTemplate())); }
 
 /* ---------- export / import ---------- */
+/* render the color-chip card offscreen -> nativeImage */
+async function chipImage(p, gs) {
+  const w = new BrowserWindow({ show: false, width: 1080, height: 800, useContentSize: true, webPreferences: { offscreen: true, javascript: true } });
+  try {
+    await w.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(share.chipHtml(p.name, gs, T("화면 어디서든 색 뽑기", "Pick colors anywhere", "どこでも色を抽出"))));
+    const h = await w.webContents.executeJavaScript("document.documentElement.scrollHeight");
+    w.setContentSize(1080, Math.ceil(h));
+    await new Promise(r => setTimeout(r, 250));
+    return await w.webContents.capturePage({ x: 0, y: 0, width: 1080, height: Math.ceil(h) });
+  } finally { w.destroy(); }
+}
 function exportMenu(p) {
   const gs = share.liveGroups(p);
   if (!gs.length) { status(T("'" + p.name + "'에 내보낼 색이 없어요", "'" + p.name + "' has no colors to export", "エクスポートする色がありません")); return; }
@@ -328,7 +339,18 @@ function exportMenu(p) {
     try { fs.writeFileSync(r.filePath, data); status(T("저장했어요 · ", "Saved · ", "保存しました · ") + path.basename(r.filePath)); }
     catch (e) { status(T("저장하지 못했어요 · ", "Couldn't save · ", "保存できませんでした · ") + e.message, true); }
   };
+  const imgShare = async (save) => {
+    try {
+      status(T("이미지를 만드는 중…", "Making image…", "画像を作成中…"));
+      const img = await chipImage(p, gs);
+      if (!save) { clipboard.writeImage(img); status(T("컬러칩 이미지를 복사했어요 · 카톡·슬랙에 붙여넣기", "Color chip image copied · paste in chat", "カラーチップ画像をコピーしました")); return; }
+      await saveAs("png", "PNG", img.toPNG());
+    } catch (e) { log("chip " + e.message); status(T("이미지를 만들지 못했어요 · ", "Couldn't make the image · ", "画像を作成できませんでした · ") + e.message, true); }
+  };
   Menu.buildFromTemplate([
+    { label: T("이미지로 공유 (컬러칩 복사)", "Share as image (copy color chips)", "画像で共有 (カラーチップをコピー)"), click: () => imgShare(false) },
+    { label: T("이미지로 저장 (.png)", "Save as image (.png)", "画像で保存 (.png)"), click: () => imgShare(true) },
+    { type: "separator" },
     { label: T("공유 코드 복사 (카톡·슬랙에 붙여넣기)", "Copy share code (paste in chat)", "共有コードをコピー"), click: () => { clipboard.writeText(share.toCode(gs, p.name)); status(T("공유 코드를 복사했어요 · 팀원은 불러오기 → 코드 붙여넣기", "Share code copied · teammates use Import → paste", "共有コードをコピーしました")); } },
     { label: T("파일로 저장 (.0202swatch)", "Save as file (.0202swatch)", "ファイルで保存 (.0202swatch)"), click: () => saveAs("0202swatch", "0202Swatch", JSON.stringify({ app: "0202Swatch", v: 1, project: p.name, groups: gs }, null, 1)) },
     { label: T("ASE로 저장 (포토샵·일러·AE 스와치)", "Save as .ase (Photoshop / Illustrator / AE)", ".ase で保存"), click: () => saveAs("ase", "Adobe Swatch Exchange", share.aseEncode(gs)) }

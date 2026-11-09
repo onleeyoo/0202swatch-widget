@@ -263,6 +263,7 @@
   .fbody.pfb { padding: 8px 0 6px 22px; --tile: 27px; }
   .fbody.pfb .tiles { gap: 3px; }
   #projBody #newProj { margin-top: 8px; width: 100%; }
+  .frow .nmEdit { flex: 1; min-width: 0; height: 24px; padding: 0 8px; border-radius: 7px; border: 1px solid rgba(169,139,255,.7); background: rgba(0,0,0,.35); color: var(--text); font: inherit; outline: none; box-shadow: 0 0 0 3px rgba(124,77,255,.18); -webkit-user-select: text; user-select: text; }
   .gname { color: var(--faint); font-size: 10.5px; margin: 10px 2px 5px; font-weight: 500; }
   .empty { color: var(--faint); font-size: 11.5px; padding: 8px 2px; line-height: 1.6; }
   .add { margin-top: 12px; width: 100%; height: 34px; border-radius: 11px; background: transparent; border: 1px dashed rgba(255,255,255,.16); color: var(--sub); font-weight: 500; transition: color .15s, border-color .15s; }
@@ -769,11 +770,13 @@
     if (imgRes) renderImg();   /* keeps the "add to <project>" button in step with the open project */
     const r = $("#recent"); r.innerHTML = "";
     st.recent.forEach((h) => r.appendChild(tile(h, "", true, "", { kind: "recent" })));
-    if (!st.recent.length) r.innerHTML = '<div class="empty">' + L("아직 뽑은 색이 없어요 · 위젯을 클릭하거나 ", "No picks yet · click the widget or press ", "まだ色がありません · ウィジェットをクリックするか ") + st.key + "</div>";
+    if (!st.recent.length) r.innerHTML = '<div class="empty">' + L("아직 뽑은 색이 없어요", "No picks yet", "まだ色がありません") + "</div>";
     $("#rc").textContent = st.recent.length ? st.recent.length + " / 50" : "0";
     requestAnimationFrame(moreBtn);
     /* folder tree (Photoshop style): 기본 프리셋 > categories, my projects, hidden projects */
-    const body = $("#projBody"); body.innerHTML = "";
+    const body = $("#projBody");
+    { const ed = body.querySelector(".nmEdit"); pendingName = ed ? ed.value : null; if (ed) ed.dataset.gone = "1"; }   /* a re-render mid-typing keeps what was typed */
+    body.innerHTML = "";
     body.appendChild(frow(PRESET, L("기본 프리셋", "Presets", "プリセット"), 0, { preset: true }));
     if (isOpen(PRESET)) {
       presetList.forEach((ps, i) => {
@@ -821,6 +824,7 @@
   function projRow(e, depth) {
     const r = frow(e.key, (e.link ? "🔗 " : "") + e.name, depth, { proj: true, star: e.fav });
     r.dataset.key = e.key;
+    if (e.key === editKey) { chipEvents(r, e); nameEditor(r, e); return r; }
     r.title = L("클릭: 열기/접기 · 끌기: 순서 변경 · 색을 여기에 놓으면 저장 · ⋯: 메뉴", "Click: open/close · drag: reorder · drop colors here to save · ⋯: menu", "クリック: 開閉 · ドラッグ: 並べ替え · ⋯: メニュー");
     chipEvents(r, e);
     return r;
@@ -930,11 +934,33 @@
     toast(L("진단 정보를 복사했어요 · 그대로 보내주세요", "Diagnostics copied · send it as is", "診断情報をコピーしました"));
   };
   let formMode = "new", formTarget = null;
+  /* new / rename: the folder's own name turns into a text box right in the list */
+  let editKey = null, editNew = false, pendingName = null;
   function openForm(mode, target) {
-    formMode = mode; formTarget = target || null;
-    $("#newForm").style.display = "flex";
-    $("#newForm").querySelector("button[type=submit]").textContent = mode === "rename" ? T("rename") : T("add");
-    $("#newName").value = mode === "rename" ? target.name : ""; $("#newName").focus(); $("#newName").select();
+    if (mode === "rename" && target) { editKey = target.key; editNew = false; render(); return; }
+    const base = L("새 프로젝트", "New project", "新規プロジェクト");
+    let name = base, i = 2; while (store.projects.some((x) => x.name === name)) name = base + " " + i++;
+    const e2 = { key: "w" + Date.now().toString(36), name: name, groups: [] };
+    store.projects.unshift(e2); setActive(e2.key); if (!isOpen(e2.key)) toggleOpen(e2.key);
+    editKey = e2.key; editNew = true; save(); render();
+  }
+  function nameEditor(row, e) {
+    const nm = row.querySelector(".nm"), inp = document.createElement("input");
+    inp.className = "nmEdit"; inp.value = pendingName !== null ? pendingName : e.name; pendingName = null; inp.spellcheck = false; nm.replaceWith(inp);
+    row.draggable = false;
+    let done = false;
+    const finish = (keep) => {
+      if (done) return; done = true;
+      const v = inp.value.trim();
+      if (keep && v) e.name = v;
+      const wasNew = editNew; editKey = null; editNew = false;
+      save(); render();
+      if (wasNew && keep) toast(L("'" + e.name + "' 프로젝트를 만들었어요", "Created '" + e.name + "'", "「" + e.name + "」を作成しました"));
+    };
+    inp.addEventListener("keydown", (ev) => { ev.stopPropagation(); if (ev.key === "Enter" && !ev.isComposing) finish(true); if (ev.key === "Escape") finish(false); });
+    inp.addEventListener("blur", () => { if (!inp.dataset.gone) finish(true); });
+    ["click", "mousedown", "pointerdown", "dblclick"].forEach((t) => inp.addEventListener(t, (ev) => ev.stopPropagation()));
+    requestAnimationFrame(() => { inp.focus(); inp.select(); });
   }
   $("#newProj").onclick = () => openForm("new");
   $("#colorIn").addEventListener("change", (e) => {
