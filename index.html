@@ -162,13 +162,19 @@
     table{font-size:15px}
   }
   .dlnote{display:inline-block;margin-top:18px;font-size:17px;font-weight:700;color:#e9e3f5;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);padding:8px 18px;border-radius:99px}
+
+  .ic{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:rgba(138,92,255,.16);border:1px solid rgba(182,155,255,.28);color:#c4b0ff;margin-right:10px;vertical-align:-8px;flex:none}
+  .ic svg{width:19px;height:19px}
+  .fi{display:inline-block;width:14px;height:14px;vertical-align:-2px;color:#b4abc6}.fi svg{width:14px;height:14px}
+  .dlnote2{display:flex;align-items:center;justify-content:center;gap:14px;margin:6px auto 0;padding:16px 20px;border-radius:16px;background:rgba(138,92,255,.10);border:1px solid rgba(182,155,255,.25);color:var(--sub);text-align:left;line-height:1.55}
+  .dlnote2 b{color:var(--text)}
+  .dlnote2 .ic{width:44px;height:44px;margin:0}.dlnote2 .ic svg{width:24px;height:24px}
 </style></head><body><div class="wrap">
   <nav class="top"><a class="brand" href="#"><img src="img2/icon-180.png" alt=""><span>0202<b>Swatch</b></span></a><div class="links"><a href="#features">기능</a><a href="#howto">사용 방법</a><a href="#spec">사양</a><a class="buy" href="https://0202production.imweb.me/shop">구매하기</a></div></nav>
   <div class="hero">
     <div>
       <span class="tag">컬러값, 아직도 메모장에서 복붙하시나요?</span>
       <h1>화면 어디서든<br><em>색을 뽑아 저장할 수 있어요</em></h1>
-      <p class="dlnote">🍎 맥 &nbsp;+&nbsp; 🪟 윈도우 설치 파일 모두 포함</p>
       <p class="lead">유튜브 화면, 레퍼런스 사진, 웹사이트 어디서든<br>클릭 한 번에 컬러값(#000000)을 복사할 수 있어요.<br>자주 쓰는 색은 프로젝트별로 저장하고,<br>팀원과 공유하세요.</p>
       
     </div>
@@ -180,7 +186,7 @@
           <div class="bars"><i class="bar" style="background:linear-gradient(90deg,#00e400,#ffe400)"></i><i class="bar" style="background:linear-gradient(90deg,#fe0000,#ffe400)"></i><i class="bar" style="background:linear-gradient(90deg,#ffe400,#ffe4ff)"></i><div class="hex"># FEE500</div></div>
         </div>
         <div class="tiles"><i style="background:#fff"></i><i style="background:#ffe400"></i><i style="background:#ffc400"></i><i style="background:#4fc3f7"></i><i style="background:#ff6fb0"></i><i style="background:#a3e35e"></i><i style="background:#ff9f1c"></i><i style="background:#ff3b30"></i></div>
-        <div class="folder">▸ 📁 기본 프리셋 &nbsp;·&nbsp; ▾ 📁 내 프로젝트</div>
+        <div class="folder">▸ <span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span> 기본 프리셋 &nbsp;·&nbsp; ▾ <span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span> 내 프로젝트</div>
       </div>
       <div class="toast"><b></b>2EFB52 복사됨</div>
       <div class="bubble">2EFB52</div>
@@ -194,6 +200,7 @@
       <p>자주 쓰는 컬러값,<br>포토샵이나 메모장에 적어두고<br>계속 복붙해서 쓰시는 분들 많으시죠?</p>
       <p>저도 같은 불편함이 있어서 직접 만들었어요.</p>
       <p><b>0202Swatch</b>는 화면 어디서든 색상 값을 뽑아서<br>저장하고, 프로젝트별로 관리할 수 있는 위젯이에요.</p>
+      <p class="dlnote2"><span class="ic sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></span><span><b>맥 · 윈도우 모두 사용 가능</b><br>다운로드 파일에 맥(.dmg) · 윈도우(.exe)<br>설치 파일이 함께 들어 있어요.</span></p>
     </div>
   </section>
 
@@ -212,10 +219,10 @@
     <h2>이렇게 활용해 보세요</h2>
     <p class="sub2">편집하면서, 디자인하면서,<br>유튜브 보면서도 바로바로.</p>
     <div class="grid4">
-      <div class="feat"><h3>🎨 프로젝트별 키컬러 저장</h3><p>프로젝트마다 키컬러를 저장해두고<br>필요할 때 바로바로 꺼내 써요.</p></div>
-      <div class="feat"><h3>🤝 팀원과 컬러 공유</h3><p>컬러칩 이미지나 공유 코드로<br>같이 작업하는 팀원과 색을 맞춰요.</p></div>
-      <div class="feat"><h3>📺 유튜브 자막 색 추출</h3><p>유튜브를 보다가 자막 색이 궁금할 때,<br>화면에서 바로 색을 뽑아봐요.</p></div>
-      <div class="feat"><h3>🅿️ 포토샵 스와치 그대로</h3><p>포토샵에 저장해둔 스와치가 있다면?<br>내보내서 0202Swatch에서 그대로 써요.</p></div>
+      <div class="feat"><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.2"/><circle cx="17.5" cy="10.5" r="1.2"/><circle cx="8.5" cy="7.5" r="1.2"/><circle cx="6.5" cy="12.5" r="1.2"/><path d="M12 2a10 10 0 0 0 0 20c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.7 1.7-1.7h2a5.6 5.6 0 0 0 5.5-5.6C22 6 17.5 2 12 2Z"/></svg></span>프로젝트별 키컬러 저장</h3><p>프로젝트마다 키컬러를 저장해두고<br>필요할 때 바로바로 꺼내 써요.</p></div>
+      <div class="feat"><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg></span>팀원과 컬러 공유</h3><p>컬러칩 이미지나 공유 코드로<br>같이 작업하는 팀원과 색을 맞춰요.</p></div>
+      <div class="feat"><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="4"/><path d="m10 9 5 3-5 3Z"/></svg></span>유튜브 자막 색 추출</h3><p>유튜브를 보다가 자막 색이 궁금할 때,<br>화면에서 바로 색을 뽑아봐요.</p></div>
+      <div class="feat"><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 10 5-10 5L2 7Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></span>포토샵 스와치 그대로</h3><p>포토샵에 저장해둔 스와치가 있다면?<br>내보내서 0202Swatch에서 그대로 써요.</p></div>
     </div>
   </section>
 
@@ -223,18 +230,18 @@
     <h2>사용 방법</h2>
     <p class="sub2">자주 쓰는 것부터 순서대로 모았어요.</p>
     <div class="use">
-      <div class="row"><div class="im "><img src="img2/loupe.png?v=7"></div><div><h3>🎯 색 뽑기</h3><ol><li>화면의 동그란 위젯 클릭<br>또는 단축키 <b>⌥⌘C</b> (윈도우 <b>Ctrl+Alt+C</b>)</li><li>확대경이 뜨면 원하는 곳 클릭</li><li>컬러값이 바로 복사돼요 · 취소는 Esc</li></ol></div></div>
-      <div class="row"><div class="im "><img src="img2/img.png"></div><div><h3>🖼 화면 캡처·이미지로<br>색 조합 뽑기</h3><ol><li><b>화면 영역 캡처</b> → 원하는 영역 드래그</li><li>이미지 파일은 <b>이미지에서 색 추출</b><br>또는 팔레트에 끌어놓기</li><li>추천 조합을 프로젝트에 저장</li></ol></div></div>
-      <div class="row"><div class="im "><img src="img2/drag.png"></div><div><h3>✋ 드래그앤드롭으로 저장</h3><ol><li>최근 색을 프로젝트 폴더로 끌어놓기</li><li>폴더 안에서 끌면 순서 변경</li><li><b>⌥(Alt)</b>를 누른 채 끌면 복제</li></ol></div></div>
-      <div class="row"><div class="im "><img src="img2/plus.png"></div><div><h3>➕ 지금 색 바로 넣기</h3><ol><li>폴더 맨 끝 점선 <b>＋</b> 클릭</li><li>현재 색이 맨 앞에 추가돼요</li><li>＋를 우클릭하면 색 고르기 창</li></ol></div></div>
-      <div class="row"><div class="im "><img src="img2/cur.png"></div><div><h3>🎨 색 미세 조정</h3><ol><li>HEX 칸에 직접 입력<br>(한글 자판 그대로 쳐도 OK)</li><li>R / G / B 슬라이더로 조정</li><li>만든 색은 최근 색에 자동 저장</li></ol></div></div>
-      <div class="row"><div class="im "><img src="img2/newproj.png"></div><div><h3>📁 프로젝트 만들고 정리</h3><ol><li><b>＋ 새 프로젝트</b> → 바로 이름 입력</li><li>폴더를 끌어서 순서 변경</li><li><b>⋯</b> 메뉴: 이름 바꾸기 · 즐겨찾기<br>숨기기 · 복제 · 삭제</li></ol></div></div>
-      <div class="row"><div class="im "><img src="img2/del.png"></div><div><h3>🗑 색 지우기</h3><ol><li>색을 우클릭 → <b>삭제</b></li><li>끌어서 아래 휴지통에 놓기</li><li><b>선택</b>으로 여러 개 한 번에 삭제</li></ol></div></div>
-      <div class="row"><div class="im pad"><img src="img2/chip.png"></div><div><h3>🔁 팀원과 공유하기</h3><ol><li>프로젝트 <b>⋯ → 공유 · 내보내기</b></li><li><b>이미지로 공유</b>: 컬러칩 이미지를<br>카톡·슬랙에 바로 붙여넣기</li><li><b>공유 코드</b>: 받는 사람이 불러오기로<br>폴더째 그대로 가져가요</li></ol></div></div>
-      <div class="row"><div class="im "><img src="img2/ase.png"></div><div><h3>🅿️ 포토샵 스와치 연동</h3><ol><li><b>불러오기 → 파일 열기</b>에서<br>.ase 파일 선택</li><li><b>공유 · 내보내기 → ASE로 저장</b></li><li>포토샵·일러·AE 스와치 패널에서<br>그대로 불러오기</li></ol></div></div>
-      <div class="row"><div class="im "><img src="img2/lang.png"></div><div><h3>🌐 언어 바꾸기</h3><ol><li>팔레트 제목 옆 🌐<br>또는 위젯 우클릭 → <b>언어 / Language</b></li><li>한국어 · English · 日本語</li></ol></div></div>
-      <div class="row"><div class="im pad"><img src="img2/key.png"></div><div><h3>⌨️ 단축키 바꾸기</h3><ol><li>위젯 우클릭 → <b>단축키 변경</b></li><li>원하는 키 조합을 누르고 저장</li><li><b>기본값</b>으로 되돌리기도 가능</li></ol></div></div>
-      <div class="row"><div class="im pad"><img src="img2/whover.png"></div><div><h3>⚙️ 위젯 다루기</h3><ol><li>위젯을 끌어서 위치 이동</li><li>마우스를 올리면 나오는 버튼으로<br>팔레트 열기</li><li>새 버전은 자동으로 받아져요</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/loupe.png?v=7"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></span>색 뽑기</h3><ol><li>화면의 동그란 위젯 클릭<br>또는 단축키 <b>⌥⌘C</b> (윈도우 <b>Ctrl+Alt+C</b>)</li><li>확대경이 뜨면 원하는 곳 클릭</li><li>컬러값이 바로 복사돼요 · 취소는 Esc</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/img.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg></span>화면 캡처·이미지로<br>색 조합 뽑기</h3><ol><li><b>화면 영역 캡처</b> → 원하는 영역 드래그</li><li>이미지 파일은 <b>이미지에서 색 추출</b><br>또는 팔레트에 끌어놓기</li><li>추천 조합을 프로젝트에 저장</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/drag.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/><path d="M15 19l-3 3-3-3"/><path d="M19 9l3 3-3 3"/><path d="M2 12h20"/><path d="M12 2v20"/></svg></span>드래그앤드롭으로 저장</h3><ol><li>최근 색을 프로젝트 폴더로 끌어놓기</li><li>폴더 안에서 끌면 순서 변경</li><li><b>⌥(Alt)</b>를 누른 채 끌면 복제</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/plus.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></span>지금 색 바로 넣기</h3><ol><li>폴더 맨 끝 점선 <b>＋</b> 클릭</li><li>현재 색이 맨 앞에 추가돼요</li><li>＋를 우클릭하면 색 고르기 창</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/cur.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M2 14h4"/><path d="M10 8h4"/><path d="M18 16h4"/></svg></span>색 미세 조정</h3><ol><li>HEX 칸에 직접 입력<br>(한글 자판 그대로 쳐도 OK)</li><li>R / G / B 슬라이더로 조정</li><li>만든 색은 최근 색에 자동 저장</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/newproj.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span>프로젝트 만들고 정리</h3><ol><li><b>＋ 새 프로젝트</b> → 바로 이름 입력</li><li>폴더를 끌어서 순서 변경</li><li><b>⋯</b> 메뉴: 이름 바꾸기 · 즐겨찾기<br>숨기기 · 복제 · 삭제</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/del.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>색 지우기</h3><ol><li>색을 우클릭 → <b>삭제</b></li><li>끌어서 아래 휴지통에 놓기</li><li><b>선택</b>으로 여러 개 한 번에 삭제</li></ol></div></div>
+      <div class="row"><div class="im pad"><img src="img2/chip.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4"/><path d="m15.4 6.5-6.8 4"/></svg></span>팀원과 공유하기</h3><ol><li>프로젝트 <b>⋯ → 공유 · 내보내기</b></li><li><b>이미지로 공유</b>: 컬러칩 이미지를<br>카톡·슬랙에 바로 붙여넣기</li><li><b>공유 코드</b>: 받는 사람이 불러오기로<br>폴더째 그대로 가져가요</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/ase.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 10 5-10 5L2 7Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></span>포토샵 스와치 연동</h3><ol><li><b>불러오기 → 파일 열기</b>에서<br>.ase 파일 선택</li><li><b>공유 · 내보내기 → ASE로 저장</b></li><li>포토샵·일러·AE 스와치 패널에서<br>그대로 불러오기</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/lang.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20a15 15 0 0 1 0-20"/></svg></span>언어 바꾸기</h3><ol><li>팔레트 제목 옆 언어 버튼<br>또는 위젯 우클릭 → <b>언어 / Language</b></li><li>한국어 · English · 日本語</li></ol></div></div>
+      <div class="row"><div class="im pad"><img src="img2/key.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M18 13h.01M8 16h8"/></svg></span>단축키 바꾸기</h3><ol><li>위젯 우클릭 → <b>단축키 변경</b></li><li>원하는 키 조합을 누르고 저장</li><li><b>기본값</b>으로 되돌리기도 가능</li></ol></div></div>
+      <div class="row"><div class="im pad"><img src="img2/whover.png"></div><div><h3><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></span>위젯 다루기</h3><ol><li>위젯을 끌어서 위치 이동</li><li>마우스를 올리면 나오는 버튼으로<br>팔레트 열기</li><li>새 버전은 자동으로 받아져요</li></ol></div></div>
     </div>
   </section>
 
