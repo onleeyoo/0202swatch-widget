@@ -1,18 +1,14 @@
 <!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="화면 어디서든 색을 뽑아 컬러값을 복사하고, 프로젝트별로 저장·공유하는 맥·윈도우 위젯. 공이공이 프로덕션 제작.">
+<link rel="icon" href="img2/favicon.png"><link rel="apple-touch-icon" href="img2/icon-180.png">
 <title>0202Swatch · 어디서든 색 뽑는 스와치 위젯</title>
-<meta name="description" content="화면 어디서든 스포이드로 색을 뽑아 HEX를 복사하고, 프로젝트별로 색을 저장·공유하는 맥·윈도우 위젯. 공이공이 프로덕션 제작.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root { --bg: #0b0910; --card: #15111d; --card2: #1c1626; --edge: rgba(255,255,255,.09); --text: #f1edf8; --sub: #b4abc6; --faint: #7d748f; --p: #8a5cff; --p2: #b69bff; --ok: #8fe3a9; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body { background: radial-gradient(90% 50% at 10% 0%, rgba(124,77,255,.22), transparent 60%), radial-gradient(60% 40% at 100% 20%, rgba(255,90,170,.10), transparent 60%), var(--bg);
-    color: var(--text); font: 15px/1.65 "Noto Sans KR", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; -webkit-font-smoothing: antialiased; }
+    color: var(--text); font: 15px/1.65 "Noto Sans KR", "Noto Sans CJK KR", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; -webkit-font-smoothing: antialiased; }
   a { color: var(--p2); }
   .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
   nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
@@ -81,30 +77,99 @@
   details { background: var(--card); border: 1px solid var(--edge); border-radius: 14px; padding: 14px 18px; margin-top: 12px; }
   details summary { cursor: pointer; font-weight: 700; }
   footer { padding: 40px 0 60px; color: var(--faint); font-size: 13px; border-top: 1px solid var(--edge); }
-  @media (max-width: 760px) {
+
+  /* ===== 700px detail page ===== */
+  h1,h2{font-family:"Noto Sans KR","Noto Sans CJK KR",sans-serif;font-weight:900}
+  body{font-size:20px;}
+  .wrap{max-width:700px;padding:0 40px;}
+  .hero{grid-template-columns:1fr;gap:34px;padding:70px 0 70px;text-align:center}
+  .tag{font-size:19px;padding:8px 18px;margin-bottom:22px}
+  h1{font-size:52px;line-height:1.22;letter-spacing:-1.5px}
+  .lead{font-size:21px;line-height:1.7;margin-top:22px}
+  .dl{justify-content:center;margin-top:34px}
+  .btn{font-size:22px;padding:18px 30px;border-radius:18px}
+  .meta{font-size:17px;margin-top:16px}
+  .mock{height:390px;width:440px;margin:0 auto}
+  .mock .panel{width:330px;padding:20px}
+  .mock .t{font-size:15px}.mock .hex{font-size:16px}.mock .folder{font-size:14px}
+  .mock .orb{width:80px;height:80px}
+  .mock .toast{font-size:14px;bottom:96px}.mock .bubble{width:76px;height:76px;font-size:12px}
+  section{padding:70px 0}
+  h2{font-size:38px;margin-bottom:12px;text-align:center}
+  .sub2{font-size:19px;text-align:center;margin-bottom:34px;line-height:1.6}
+  .intro{font-size:21px;line-height:1.75;padding:32px 34px;gap:18px;text-align:center}
+  .grid4{grid-template-columns:1fr;gap:20px}
+  .feat{padding:28px;border-radius:22px}
+  .feat .shot{height:340px;margin-bottom:20px}
+  .feat .n{font-size:16px}
+  .feat h3{font-size:26px;margin:8px 0 10px}
+  .feat p{font-size:19px;line-height:1.65}
+  #use .grid4{grid-template-columns:1fr;gap:16px}
+  #use .feat h3{font-size:22px}#use .feat p{font-size:18px}
+  .list{grid-template-columns:1fr 1fr;gap:16px}
+  .list .feat{padding:24px}
+  .list .feat h3{font-size:21px}
+  .list ol.how{font-size:17px;gap:8px;line-height:1.55}
+  table{font-size:18px}
+  th{font-size:17px}th,td{padding:16px 18px}
+  td:first-child{width:30%}
+  footer{font-size:16px;text-align:center;line-height:1.8}
+  @media (max-width: 1px) {
     h1 { font-size: 34px; }
     .hero, .grid4, .list, .steps { grid-template-columns: 1fr; }
     .mock { height: 330px; } .mock .panel { position: relative; width: 100%; }
     nav .links { display: none; }
   }
-</style>
-</head>
-<body>
-<div class="wrap">
-  <nav>
-    <div class="brand"><span class="dot"></span>0202<b>Swatch</b></div>
-    <div class="links"><a href="#about">소개</a><a href="#features">기능</a><a href="#use">활용</a><a href="#howto">사용 방법</a><a href="#spec">사양</a></div>
-  </nav>
 
+  body{word-break:keep-all;}
+  .intro p{margin:0}
+  .feat .shot{height:auto;max-height:none;aspect-ratio:auto}
+  .feat .shot.c{height:360px;object-fit:contain;padding:14px}
+  .use{display:grid;gap:16px}
+  .row{display:grid;grid-template-columns:210px 1fr;gap:22px;align-items:center;background:var(--card);border:1px solid var(--edge);border-radius:22px;padding:18px}
+  .row .im{height:170px;border-radius:14px;background:#0e0b14;border:1px solid var(--edge);display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .row .im img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+  .row .im.pad img{max-width:88%;max-height:88%}
+  .row h3{font-size:23px;margin:0 0 8px;letter-spacing:-.4px}
+  .row ol{margin:0 0 0 22px;color:var(--sub);font-size:17.5px;line-height:1.55;display:grid;gap:5px}
+  .row ol b{color:var(--text)}
+  .row p{color:var(--sub);font-size:18px;line-height:1.6;margin:0}
+
+  html{scroll-behavior:smooth}
+  nav.top{display:flex;align-items:center;justify-content:space-between;padding:22px 0 0}
+  nav.top .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--sub);font-size:20px;font-weight:500}
+  nav.top .brand img{width:40px;height:40px;margin:-4px}
+  nav.top .brand b{color:var(--text);font-weight:900}
+  nav.top .links{display:flex;align-items:center;gap:18px}
+  nav.top .links a{color:var(--sub);text-decoration:none;font-size:15px}
+  nav.top .links a:hover{color:var(--text)}
+  nav.top .links a.buy{color:#fff;background:rgba(138,92,255,.22);border:1px solid rgba(182,155,255,.35);padding:7px 14px;border-radius:99px;font-weight:700}
+  .hero{padding-top:56px}
+  .btn{text-decoration:none}
+  footer a{color:var(--sub)}
+  @media (max-width:640px){
+    .wrap{padding:0 18px}
+    nav.top .links a:not(.buy){display:none}
+    h1{font-size:34px;letter-spacing:-1px}
+    .lead{font-size:16.5px}
+    .tag{font-size:14px}
+    .btn{font-size:17px;padding:15px 20px}
+    .mock{transform:scale(.8);transform-origin:top center;height:330px;width:100%}
+    h2{font-size:28px}.sub2,.intro{font-size:16.5px}
+    .feat h3{font-size:21px}.feat p{font-size:16px}
+    .feat .shot.c{height:auto;max-height:340px}
+    .row{grid-template-columns:1fr;gap:14px}.row .im{height:200px}
+    table{font-size:15px}
+  }
+</style></head><body><div class="wrap">
+  <nav class="top"><a class="brand" href="#"><img src="img2/icon-180.png" alt=""><span>0202<b>Swatch</b></span></a><div class="links"><a href="#features">기능</a><a href="#howto">사용 방법</a><a href="#spec">사양</a><a class="buy" href="https://0202production.imweb.me/shop">구매하기</a></div></nav>
   <div class="hero">
     <div>
       <span class="tag">컬러값, 아직도 메모장에서 복붙하시나요?</span>
       <h1>화면 어디서든<br><em>색을 뽑아 저장할 수 있어요</em></h1>
-      <p class="lead">유튜브 화면, 레퍼런스 사진, 웹사이트 어디든 위젯 한 번 누르면 컬러값(#FFFFFF)이 바로 복사돼요. 자주 쓰는 색은 프로젝트별로 저장하고, 팀원에게는 코드 한 줄로 공유하세요.</p>
-      <div class="dl">
-        <a class="btn pri" id="buy" href="https://0202production.imweb.me/">얼리버드 구매가 · 4,900원 <s style="opacity:.6;font-weight:500">9,900원</s></a>
-      </div>
-      <p class="meta">얼리버드 할인가 · 맥 / 윈도우 모두 사용 · 현재 버전 <b id="ver">v1.1.0</b> · 새 버전은 자동으로 받아져요</p>
+      <p class="lead">유튜브 화면, 레퍼런스 사진, 웹사이트 어디서든<br>클릭 한 번에 컬러값(#000000)을 복사할 수 있어요.<br>자주 쓰는 색은 프로젝트별로 저장하고,<br>팀원과 공유하세요.</p>
+      <div class="dl"><a class="btn pri" href="https://0202production.imweb.me/shop">얼리버드 구매가 · 4,900원 <s style="opacity:.6;font-weight:500">9,900원</s></a></div>
+      <p class="meta">얼리버드 할인가 · 맥 / 윈도우 모두 사용 · 현재 버전 <b id="ver">v1.1.1</b> · 새 버전은 자동으로 받아져요</p>
     </div>
     <div class="mock" aria-hidden="true">
       <div class="panel">
@@ -118,77 +183,72 @@
       </div>
       <div class="toast"><b></b>2EFB52 복사됨</div>
       <div class="bubble">2EFB52</div>
+    
     </div>
   </div>
 
   <section id="about">
-    <h2>간단한 소개</h2>
+    <h2>0202Swatch란?</h2>
     <div class="intro">
-      <p>자주 쓰는 컬러값, 포토샵이나 메모장에 적어두고 계속 복붙해서 쓰시는 분들 많으시죠?<br>저도 같은 불편함이 있어서 직접 만들었어요.</p>
-      <p><b>0202Swatch</b>는 화면 어디서든 색상 값을 뽑아서 저장하고, 프로젝트별로 관리할 수 있는 위젯이에요.</p>
+      <p>자주 쓰는 컬러값,<br>포토샵이나 메모장에 적어두고<br>계속 복붙해서 쓰시는 분들 많으시죠?</p>
+      <p>저도 같은 불편함이 있어서 직접 만들었어요.</p>
+      <p><b>0202Swatch</b>는 화면 어디서든 색상 값을 뽑아서<br>저장하고, 프로젝트별로 관리할 수 있는 위젯이에요.</p>
     </div>
   </section>
 
   <section id="features">
     <h2>이런 걸 할 수 있어요</h2>
-    <p class="sub2">컴퓨터에 설치하는 위젯이라 캡컷 · 파이널컷 · 프리미어 · 일러스트 등 어떤 프로그램을 쓰든 같이 쓸 수 있어요.</p>
+    <p class="sub2">컴퓨터에 설치하는 위젯이라<br>캡컷 · 파이널컷 · 프리미어 · 일러스트 등<br>어떤 프로그램을 쓰든 같이 쓸 수 있어요.</p>
     <div class="grid4">
-      <div class="feat"><img class="shot" style="object-position:center 45%" src="img/f2.png" alt="색 뽑으면 복사됨 표시가 뜨는 위젯" loading="lazy"><div class="n">기능 1</div><h3>어디서든 색 수집, 자동 복사</h3><p>위젯을 누르거나 단축키(⌥⌘C / Ctrl+Alt+C)를 누르면 확대경 스포이드가 떠요. 찍는 순간 컬러값이 복사돼요.</p></div>
-      <div class="feat"><img class="shot fit" src="img/f1.png" alt="이미지에서 뽑은 색 화면" loading="lazy"><div class="n">기능 2</div><h3>이미지·화면에서 색 조합 뽑기</h3><p>화면 영역을 캡처하거나 이미지를 넣으면 추천 조합 5색과 많이 쓰인 색 8개를 비율과 함께 뽑아줘요. 바로 프로젝트에 저장할 수 있어요.</p></div>
-      <div class="feat"><img class="shot" src="img/f3.png" alt="기본 프리셋 폴더 화면" loading="lazy"><div class="n">기능 3</div><h3>0202 기본 컬러 조합</h3><p>예능 자막 기본, 정보·뉴스 그래픽, 브이로그 감성, 파스텔, 시네마틱·다큐, 레트로·Y2K, 무채색 프리셋이 들어 있어요.</p></div>
-      <div class="feat"><img class="shot" style="object-position:center 42%" src="img/f4.png" alt="프로젝트 폴더와 공유 메뉴" loading="lazy"><div class="n">기능 4</div><h3>프로젝트별 관리 · 팀 공유</h3><p>클라이언트·채널별 폴더에 색을 모아두고, 공유 코드나 파일로 함께 작업하는 사람에게 넘겨줄 수 있어요. 폴더 이름까지 그대로 가요.</p></div>
+      <div class="feat"><img class="shot" src="img2/feat1.png"><div class="n">기능 1</div><h3>어디서든 색 수집, 자동 복사</h3><p>위젯을 누르거나 단축키를 누르면 확대경이 떠요.<br>원하는 곳을 찍는 순간 컬러값이 복사돼요.</p></div>
+      <div class="feat"><img class="shot c" src="img2/img.png"><div class="n">기능 2</div><h3>이미지·화면에서 색 조합 뽑기</h3><p>화면을 캡처하거나 이미지를 넣으면<br>추천 조합 5색과 많이 쓰인 색 8개를 뽑아줘요.<br>바로 프로젝트에 저장할 수 있어요.</p></div>
+      <div class="feat"><img class="shot c" src="img2/f3.png"><div class="n">기능 3</div><h3>0202 기본 컬러 조합</h3><p>예능 자막, 정보·뉴스 그래픽, 브이로그 감성,<br>파스텔, 시네마틱, 레트로·Y2K, 무채색까지<br>바로 쓸 수 있는 조합이 들어 있어요.</p></div>
+      <div class="feat"><img class="shot" src="img2/feat4.png"><div class="n">기능 4</div><h3>프로젝트별 관리 · 팀 공유</h3><p>클라이언트·채널별 폴더에 색을 모아두고,<br>컬러칩 이미지나 공유 코드로 팀원에게 넘겨줘요.<br>폴더 이름까지 그대로 가요.</p></div>
     </div>
   </section>
 
   <section id="use">
     <h2>이렇게 활용해 보세요</h2>
-    <p class="sub2">편집하면서, 디자인하면서, 유튜브 보면서도 바로바로.</p>
+    <p class="sub2">편집하면서, 디자인하면서,<br>유튜브 보면서도 바로바로.</p>
     <div class="grid4">
-      <div class="feat"><h3>🎨 프로젝트별 키컬러 저장</h3><p>프로젝트마다 키컬러를 저장해두고 필요할 때 바로바로 꺼내 써요.</p></div>
-      <div class="feat"><h3>🤝 팀원과 컬러 공유</h3><p>같이 작업하는 팀원에게 컬러를 그대로 공유해서 협업에 활용하세요.</p></div>
-      <div class="feat"><h3>📺 유튜브 자막 색 추출</h3><p>유튜브를 보다가 자막에 쓴 색상이 궁금할 때, 화면에서 바로 색을 뽑아봐요.</p></div>
-      <div class="feat"><h3>🅿️ 포토샵 스와치 그대로</h3><p>포토샵에 저장해둔 스와치 폴더가 있다면? 내보내서 0202Swatch에서 그대로 써요.</p></div>
+      <div class="feat"><h3>🎨 프로젝트별 키컬러 저장</h3><p>프로젝트마다 키컬러를 저장해두고<br>필요할 때 바로바로 꺼내 써요.</p></div>
+      <div class="feat"><h3>🤝 팀원과 컬러 공유</h3><p>컬러칩 이미지나 공유 코드로<br>같이 작업하는 팀원과 색을 맞춰요.</p></div>
+      <div class="feat"><h3>📺 유튜브 자막 색 추출</h3><p>유튜브를 보다가 자막 색이 궁금할 때,<br>화면에서 바로 색을 뽑아봐요.</p></div>
+      <div class="feat"><h3>🅿️ 포토샵 스와치 그대로</h3><p>포토샵에 저장해둔 스와치가 있다면?<br>내보내서 0202Swatch에서 그대로 써요.</p></div>
     </div>
   </section>
 
   <section id="howto">
     <h2>사용 방법</h2>
     <p class="sub2">자주 쓰는 것부터 순서대로 모았어요.</p>
-    <div class="list">
-      <div class="feat"><h3>🎯 색 뽑기</h3><ol class="how"><li>화면의 동그란 위젯을 누르거나 단축키 <b>⌥⌘C</b>(윈도우 <b>Ctrl+Alt+C</b>)</li><li>확대경이 뜨면 원하는 곳을 클릭</li><li>HEX 값이 바로 복사돼요 · 취소는 Esc</li></ol></div>
-      <div class="feat"><h3>🖼 화면 캡처·이미지로 색 조합 뽑기</h3><ol class="how"><li>팔레트에서 <b>화면 영역 캡처</b> → 원하는 영역을 드래그</li><li>이미지 파일은 <b>이미지에서 색 추출</b> 또는 팔레트에 붙여넣기·끌어놓기</li><li>추천 조합을 <b>프로젝트에 추가</b>하거나 <b>새 프로젝트로 저장</b></li></ol></div>
-      <div class="feat"><h3>✋ 드래그앤드롭으로 색 저장</h3><ol class="how"><li>최근 색을 프로젝트 폴더(이름이나 펼친 안쪽)로 끌어놓기</li><li>폴더 안에서 끌면 순서 변경</li><li><b>⌥(Alt)</b>를 누른 채 끌면 복제</li></ol></div>
-      <div class="feat"><h3>➕ 지금 색 바로 넣기</h3><ol class="how"><li>폴더 맨 끝 점선 <b>＋</b>를 누르면 현재 색이 맨 앞에 추가</li><li>＋를 우클릭하면 색 고르기 창</li></ol></div>
-      <div class="feat"><h3>🎨 색 미세 조정</h3><ol class="how"><li>동그란 버튼 아래 HEX 칸에 직접 입력 (한글 자판도 OK)</li><li>R/G/B 슬라이더로 조정</li><li>만든 색은 최근 색에 자동 저장</li></ol></div>
-      <div class="feat"><h3>📁 프로젝트 만들고 정리하기</h3><ol class="how"><li><b>＋ 새 프로젝트</b>를 누르면 폴더가 생기고 바로 이름 입력</li><li>폴더를 끌어서 순서 변경, 클릭하면 접기·펼치기</li><li>이름 옆 <b>⋯</b>: 이름 바꾸기 · 즐겨찾기 · 숨기기 · 복제 · 삭제</li></ol></div>
-      <div class="feat"><h3>🗑 색 지우기</h3><ol class="how"><li>색을 우클릭 → <b>삭제</b></li><li>색을 끌면 아래에 뜨는 휴지통에 놓기</li><li><b>선택</b>을 누르고 여러 개 골라 한 번에 삭제·이동</li></ol></div>
-      <div class="feat"><h3>🔁 팀원과 공유하기</h3><ol class="how"><li>프로젝트 <b>⋯ → 공유 · 내보내기</b> → 공유 코드 복사</li><li>카톡·슬랙으로 코드 전달</li><li>받는 사람은 <b>불러오기 → 코드 붙여넣기</b> (폴더 이름까지 그대로)</li></ol></div>
-      <div class="feat"><h3>🅿️ 포토샵 스와치 가져오기·보내기</h3><ol class="how"><li><b>불러오기 → 파일 열기</b>에서 포토샵·일러 .ase 파일 선택</li><li>프로젝트 <b>⋯ → 공유 · 내보내기 → ASE로 저장</b></li><li>저장한 .ase는 포토샵·일러·AE 스와치 패널에서 불러오기</li></ol></div>
-      <div class="feat"><h3>🌐 언어 바꾸기</h3><ol class="how"><li>팔레트 제목 옆 🌐 또는 위젯 우클릭 → <b>언어 / Language</b></li><li>한국어 · English · 日本語</li></ol></div>
-      <div class="feat"><h3>⌨️ 단축키 바꾸기</h3><ol class="how"><li>위젯 우클릭 → <b>단축키 변경</b></li><li>원하는 키 조합을 누르고 저장</li><li><b>기본값</b>으로 되돌리기도 가능</li></ol></div>
-      <div class="feat"><h3>⚙️ 위젯 다루기</h3><ol class="how"><li>위젯을 끌어서 위치 이동</li><li>마우스를 올리면 나오는 버튼으로 팔레트 열기</li><li>새 버전은 자동으로 받아지고, 팔레트 <b>↻</b>를 누르면 적용</li></ol></div>
+    <div class="use">
+      <div class="row"><div class="im "><img src="img2/loupe.png"></div><div><h3>🎯 색 뽑기</h3><ol><li>화면의 동그란 위젯 클릭<br>또는 단축키 <b>⌥⌘C</b> (윈도우 <b>Ctrl+Alt+C</b>)</li><li>확대경이 뜨면 원하는 곳 클릭</li><li>컬러값이 바로 복사돼요 · 취소는 Esc</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/img.png"></div><div><h3>🖼 화면 캡처·이미지로<br>색 조합 뽑기</h3><ol><li><b>화면 영역 캡처</b> → 원하는 영역 드래그</li><li>이미지 파일은 <b>이미지에서 색 추출</b><br>또는 팔레트에 끌어놓기</li><li>추천 조합을 프로젝트에 저장</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/drag.png"></div><div><h3>✋ 드래그앤드롭으로 저장</h3><ol><li>최근 색을 프로젝트 폴더로 끌어놓기</li><li>폴더 안에서 끌면 순서 변경</li><li><b>⌥(Alt)</b>를 누른 채 끌면 복제</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/plus.png"></div><div><h3>➕ 지금 색 바로 넣기</h3><ol><li>폴더 맨 끝 점선 <b>＋</b> 클릭</li><li>현재 색이 맨 앞에 추가돼요</li><li>＋를 우클릭하면 색 고르기 창</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/cur.png"></div><div><h3>🎨 색 미세 조정</h3><ol><li>HEX 칸에 직접 입력<br>(한글 자판 그대로 쳐도 OK)</li><li>R / G / B 슬라이더로 조정</li><li>만든 색은 최근 색에 자동 저장</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/newproj.png"></div><div><h3>📁 프로젝트 만들고 정리</h3><ol><li><b>＋ 새 프로젝트</b> → 바로 이름 입력</li><li>폴더를 끌어서 순서 변경</li><li><b>⋯</b> 메뉴: 이름 바꾸기 · 즐겨찾기<br>숨기기 · 복제 · 삭제</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/del.png"></div><div><h3>🗑 색 지우기</h3><ol><li>색을 우클릭 → <b>삭제</b></li><li>끌어서 아래 휴지통에 놓기</li><li><b>선택</b>으로 여러 개 한 번에 삭제</li></ol></div></div>
+      <div class="row"><div class="im pad"><img src="img2/chip.png"></div><div><h3>🔁 팀원과 공유하기</h3><ol><li>프로젝트 <b>⋯ → 공유 · 내보내기</b></li><li><b>이미지로 공유</b>: 컬러칩 이미지를<br>카톡·슬랙에 바로 붙여넣기</li><li><b>공유 코드</b>: 받는 사람이 불러오기로<br>폴더째 그대로 가져가요</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/ase.png"></div><div><h3>🅿️ 포토샵 스와치 연동</h3><ol><li><b>불러오기 → 파일 열기</b>에서<br>.ase 파일 선택</li><li><b>공유 · 내보내기 → ASE로 저장</b></li><li>포토샵·일러·AE 스와치 패널에서<br>그대로 불러오기</li></ol></div></div>
+      <div class="row"><div class="im "><img src="img2/lang.png"></div><div><h3>🌐 언어 바꾸기</h3><ol><li>팔레트 제목 옆 🌐<br>또는 위젯 우클릭 → <b>언어 / Language</b></li><li>한국어 · English · 日本語</li></ol></div></div>
+      <div class="row"><div class="im pad"><img src="img2/key.png"></div><div><h3>⌨️ 단축키 바꾸기</h3><ol><li>위젯 우클릭 → <b>단축키 변경</b></li><li>원하는 키 조합을 누르고 저장</li><li><b>기본값</b>으로 되돌리기도 가능</li></ol></div></div>
+      <div class="row"><div class="im pad"><img src="img2/whover.png"></div><div><h3>⚙️ 위젯 다루기</h3><ol><li>위젯을 끌어서 위치 이동</li><li>마우스를 올리면 나오는 버튼으로<br>팔레트 열기</li><li>새 버전은 자동으로 받아져요</li></ol></div></div>
     </div>
   </section>
 
   <section id="spec">
     <h2>설치 가능한 컴퓨터 사양</h2>
-    <p class="sub2">한 번 구매하면 맥·윈도우 설치 파일을 모두 받을 수 있어요.</p>
+    <p class="sub2">한 번 구매하면<br>맥·윈도우 설치 파일을 모두 받을 수 있어요.</p>
     <table>
       <tr><th>운영체제</th><th>지원 사양</th></tr>
-      <tr><td>맥 (macOS)</td><td>macOS 11 Big Sur 이상 · Apple 실리콘(M1~M4)과 인텔 맥 모두 지원</td></tr>
-      <tr><td>윈도우 (Windows)</td><td>Windows 10 · 11 (64비트)</td></tr>
-      <tr><td>필요한 권한</td><td>맥은 처음 실행할 때 <b>화면 기록</b> 권한을 허용해야 색을 뽑을 수 있어요.</td></tr>
+      <tr><td>맥</td><td>macOS 11 Big Sur 이상<br>Apple 실리콘(M1~M4) · 인텔 맥 모두 지원</td></tr>
+      <tr><td>윈도우</td><td>Windows 10 · 11 (64비트)</td></tr>
+      <tr><td>필요한 권한</td><td>맥은 처음 실행할 때 <b>화면 기록</b> 권한을<br>허용해야 색을 뽑을 수 있어요.</td></tr>
     </table>
   </section>
 
-  <footer>
-    © 0202 Production · 공이공이 프로덕션 · 구매하신 분만 사용할 수 있어요. 설치 파일의 재배포·재판매는 하지 말아주세요.<br>
-    인스타그램 <a href="https://www.instagram.com/yooj2_2/">@yooj2_2</a>
-  </footer>
+  <footer>인스타그램 <a href="https://www.instagram.com/yooj2_2/">@yooj2_2</a><br>© 0202 Production · 공이공이 프로덕션<br>구매하신 분만 사용할 수 있어요.<br>설치 파일의 재배포·재판매는 하지 말아주세요.</footer>
 </div>
-<script>
-  /* show the live version from the update file */
-  fetch("version.json", { cache: "no-store" }).then((r) => r.json()).then((j) => { if (j && j.v) document.getElementById("ver").textContent = "v" + j.v; }).catch(() => {});
-</script>
-</body>
-</html>
+<script>fetch("version.json",{cache:"no-store"}).then(r=>r.json()).then(j=>{if(j&&j.v)document.getElementById("ver").textContent="v"+j.v}).catch(()=>{});</script>
+</body></html>
