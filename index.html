@@ -59,6 +59,8 @@
   .feat .n { font-size: 12px; font-weight: 900; color: var(--p2); letter-spacing: .5px; }
   .feat h3 { font-size: 18px; margin: 6px 0 6px; }
   .feat p { color: var(--sub); font-size: 14.5px; }
+  .intro { background: var(--card); border: 1px solid var(--edge); border-radius: 18px; padding: 26px 28px; font-size: 16.5px; color: var(--sub); display: grid; gap: 12px; }
+  .intro b { color: var(--text); }
   .list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .list .feat h3 { font-size: 15.5px; }
   .list ol.how { margin: 8px 0 0 18px; color: var(--sub); font-size: 13.5px; display: grid; gap: 5px; }
@@ -91,18 +93,18 @@
 <div class="wrap">
   <nav>
     <div class="brand"><span class="dot"></span>0202<b>Swatch</b></div>
-    <div class="links"><a href="#features">기능</a><a href="#howto">사용 방법</a><a href="#install">설치</a><a href="#help">문제 해결</a></div>
+    <div class="links"><a href="#about">소개</a><a href="#features">기능</a><a href="#use">활용</a><a href="#howto">사용 방법</a><a href="#spec">사양</a></div>
   </nav>
 
   <div class="hero">
     <div>
-      <span class="tag">얼리버드 4,900원 · 맥 / 윈도우</span>
-      <h1>화면 어디서든<br><em>색 뽑고, 저장하고, 공유</em></h1>
-      <p class="lead">프리미어에 없는 스와치, 따로 만들었어요. 화면에 떠 있는 위젯을 누르면 스포이드로 아무 곳에서나 색을 뽑고 HEX가 바로 복사돼요. 프로젝트별로 색을 모아두고 팀원과 공유할 수 있어요.</p>
+      <span class="tag">컬러값, 아직도 메모장에서 복붙하시나요?</span>
+      <h1>화면 어디서든<br><em>색을 뽑아 저장할 수 있어요</em></h1>
+      <p class="lead">유튜브 화면, 레퍼런스 사진, 웹사이트 어디든 위젯 한 번 누르면 컬러값(#FFFFFF)이 바로 복사돼요. 자주 쓰는 색은 프로젝트별로 저장하고, 팀원에게는 코드 한 줄로 공유하세요.</p>
       <div class="dl">
-        <a class="btn pri" id="buy" href="https://0202production.imweb.me/">구매하기 · 4,900원 <s style="opacity:.6;font-weight:500">12,900원</s></a>
+        <a class="btn pri" id="buy" href="https://0202production.imweb.me/">0202Swatch 구매하기 · 4,900원 <s style="opacity:.6;font-weight:500">12,900원</s></a>
       </div>
-      <p class="meta">현재 버전 <b id="ver">v1.1.0</b> · 구매 후 <b>마이페이지</b>에서 맥·윈도우 설치 파일을 받을 수 있어요 · 새 버전은 자동으로 받아져요</p>
+      <p class="meta">얼리버드 할인가 · 맥 / 윈도우 모두 사용 · 현재 버전 <b id="ver">v1.1.0</b> · 새 버전은 자동으로 받아져요</p>
     </div>
     <div class="mock" aria-hidden="true">
       <div class="panel">
@@ -119,14 +121,33 @@
     </div>
   </div>
 
+  <section id="about">
+    <h2>간단한 소개</h2>
+    <div class="intro">
+      <p>자주 쓰는 컬러값, 포토샵이나 메모장에 적어두고 계속 복붙해서 쓰시는 분들 많으시죠?<br>저도 같은 불편함이 있어서 직접 만들었어요.</p>
+      <p><b>0202Swatch</b>는 화면 어디서든 색상 값을 뽑아서 저장하고, 프로젝트별로 관리할 수 있는 위젯이에요.</p>
+    </div>
+  </section>
+
   <section id="features">
     <h2>이런 걸 할 수 있어요</h2>
-    <p class="sub2">프리미어 내장 플러그인이 아니라 컴퓨터에 설치하는 위젯이라 캡컷·파이널컷·포토샵 등 어떤 프로그램을 쓰든 같이 쓸 수 있어요.</p>
+    <p class="sub2">컴퓨터에 설치하는 위젯이라 캡컷 · 파이널컷 · 프리미어 · 일러스트 등 어떤 프로그램을 쓰든 같이 쓸 수 있어요.</p>
     <div class="grid4">
-      <div class="feat"><img class="shot fit" src="img/f1.png" alt="이미지에서 뽑은 색 화면" loading="lazy"><div class="n">기능 1</div><h3>이미지·화면에서 색 조합 뽑기</h3><p>화면 영역을 캡처하거나 이미지를 넣으면 추천 조합 5색과 많이 쓰인 색 8개를 비율과 함께 뽑아줘요. 바로 프로젝트에 저장할 수 있어요.</p></div>
-      <div class="feat"><img class="shot" style="object-position:center 45%" src="img/f2.png" alt="색 뽑으면 복사됨 표시가 뜨는 위젯" loading="lazy"><div class="n">기능 2</div><h3>어디서든 색 수집, 자동 복사</h3><p>위젯을 누르거나 단축키(⌥⌘C / Ctrl+Alt+C)를 누르면 확대경 스포이드가 떠요. 찍는 순간 HEX가 복사돼요.</p></div>
+      <div class="feat"><img class="shot" style="object-position:center 45%" src="img/f2.png" alt="색 뽑으면 복사됨 표시가 뜨는 위젯" loading="lazy"><div class="n">기능 1</div><h3>어디서든 색 수집, 자동 복사</h3><p>위젯을 누르거나 단축키(⌥⌘C / Ctrl+Alt+C)를 누르면 확대경 스포이드가 떠요. 찍는 순간 컬러값이 복사돼요.</p></div>
+      <div class="feat"><img class="shot fit" src="img/f1.png" alt="이미지에서 뽑은 색 화면" loading="lazy"><div class="n">기능 2</div><h3>이미지·화면에서 색 조합 뽑기</h3><p>화면 영역을 캡처하거나 이미지를 넣으면 추천 조합 5색과 많이 쓰인 색 8개를 비율과 함께 뽑아줘요. 바로 프로젝트에 저장할 수 있어요.</p></div>
       <div class="feat"><img class="shot" src="img/f3.png" alt="기본 프리셋 폴더 화면" loading="lazy"><div class="n">기능 3</div><h3>0202 기본 컬러 조합</h3><p>예능 자막 기본, 정보·뉴스 그래픽, 브이로그 감성, 파스텔, 시네마틱·다큐, 레트로·Y2K, 무채색 프리셋이 들어 있어요.</p></div>
       <div class="feat"><img class="shot" style="object-position:center 42%" src="img/f4.png" alt="프로젝트 폴더와 공유 메뉴" loading="lazy"><div class="n">기능 4</div><h3>프로젝트별 관리 · 팀 공유</h3><p>클라이언트·채널별 폴더에 색을 모아두고, 공유 코드나 파일로 함께 작업하는 사람에게 넘겨줄 수 있어요. 폴더 이름까지 그대로 가요.</p></div>
+    </div>
+  </section>
+
+  <section id="use">
+    <h2>이렇게 활용해 보세요</h2>
+    <p class="sub2">편집하면서, 디자인하면서, 유튜브 보면서도 바로바로.</p>
+    <div class="grid4">
+      <div class="feat"><h3>🎨 프로젝트별 키컬러 저장</h3><p>프로젝트마다 키컬러를 저장해두고 필요할 때 바로바로 꺼내 써요.</p></div>
+      <div class="feat"><h3>🤝 팀원과 컬러 공유</h3><p>같이 작업하는 팀원에게 컬러를 그대로 공유해서 협업에 활용하세요.</p></div>
+      <div class="feat"><h3>📺 유튜브 자막 색 추출</h3><p>유튜브를 보다가 자막에 쓴 색상이 궁금할 때, 화면에서 바로 색을 뽑아봐요.</p></div>
+      <div class="feat"><h3>🅿️ 포토샵 스와치 그대로</h3><p>포토샵에 저장해둔 스와치 폴더가 있다면? 내보내서 0202Swatch에서 그대로 써요.</p></div>
     </div>
   </section>
 
@@ -149,48 +170,14 @@
     </div>
   </section>
 
-  <section id="install">
-    <h2>설치</h2>
-    <p class="sub2">구매 후 아임웹 <b>마이페이지 → 구매 내역</b>에서 내 컴퓨터에 맞는 설치 파일을 받아주세요. 처음 열 때 한 번 허용이 필요해요.</p>
-    <div class="steps">
-      <div class="feat"><h3>맥</h3><ol>
-        <li>마이페이지에서 받은 <b>맥용 dmg</b>를 열고 0202Swatch를 <b>Applications</b>로 끌어다 놓아요.</li>
-        <li>응용 프로그램 폴더에서 0202Swatch를 열어요.</li>
-        <li>"확인되지 않은 개발자" 창이 뜨면 <b>시스템 설정 → 개인정보 보호 및 보안</b> 맨 아래 <b>그래도 열기</b>를 눌러요.</li>
-        <li>화면 오른쪽 아래에 동그란 위젯이 생기면 끝!</li></ol></div>
-      <div class="feat"><h3>윈도우</h3><ol>
-        <li>마이페이지에서 받은 <b>윈도우용 exe</b>를 실행해요.</li>
-        <li>"Windows의 PC 보호" 파란 창이 뜨면 <b>추가 정보 → 실행</b>을 눌러요.</li>
-        <li>자동으로 설치되고 바로 실행돼요. 바탕화면과 시작 메뉴에도 생겨요.</li></ol></div>
-    </div>
-    <details><summary>Claude에게 설치 맡기기 (명령어)</summary>
-      <p style="color:var(--sub);margin-top:10px;font-size:14px">받은 파일이 다운로드 폴더에 있을 때, 아래를 Claude에게 주고 "설치해줘"라고 하면 돼요.</p>
-<pre># macOS
-DMG="$(ls ~/Downloads/0202Swatch*-mac.dmg | tail -1)"
-MNT="$(hdiutil attach -nobrowse "$DMG" | tail -1 | awk -F'\t' '{print $NF}')"
-rm -rf /Applications/0202Swatch.app && cp -R "$MNT/0202Swatch.app" /Applications/
-hdiutil detach "$MNT"
-xattr -dr com.apple.quarantine /Applications/0202Swatch.app
-open /Applications/0202Swatch.app</pre>
-<pre># Windows (PowerShell)
-$f = Get-ChildItem "$env:USERPROFILE\Downloads\0202Swatch*-Windows-Setup.exe" | Select-Object -Last 1
-Unblock-File $f.FullName
-Start-Process $f.FullName -ArgumentList "/S" -Wait</pre>
-    </details>
-  </section>
-
-  <section id="help">
-    <h2>잘 안 될 때</h2>
-    <p class="sub2">대부분 아래에서 해결돼요.</p>
+  <section id="spec">
+    <h2>설치 가능한 컴퓨터 사양</h2>
+    <p class="sub2">한 번 구매하면 맥·윈도우 설치 파일을 모두 받을 수 있어요.</p>
     <table>
-      <tr><th>증상</th><th>해결</th></tr>
-      <tr><td>dmg가 안 열려요 / "손상됨"</td><td>다운로드가 덜 된 경우예요. 마이페이지에서 다시 받아주세요. 그래도 안 되면 함께 들어 있는 <b>zip</b>을 풀어서 0202Swatch를 응용 프로그램 폴더로 옮겨주세요.</td></tr>
-      <tr><td>"확인되지 않은 개발자"</td><td>시스템 설정 → 개인정보 보호 및 보안 → <b>그래도 열기</b>. 또는 터미널에 <code>xattr -dr com.apple.quarantine /Applications/0202Swatch.app</code></td></tr>
-      <tr><td>위젯이 안 보여요</td><td>메뉴 막대(윈도우는 작업 표시줄 오른쪽) 스포이드 아이콘 → <b>위젯 보이기</b> 또는 <b>위젯 위치 초기화</b></td></tr>
-      <tr><td>클릭해도 확대경이 안 떠요 (맥)</td><td>위젯을 한 번 더 누르면 화면 캡처 방식으로 바뀌어요. 시스템 설정 → 개인정보 보호 및 보안 → <b>화면 기록</b>에서 0202Swatch를 허용해주세요.</td></tr>
-      <tr><td>단축키가 안 돼요</td><td>다른 앱이 같은 단축키를 쓰는 경우예요. 위젯 우클릭 → <b>단축키 변경</b>에서 다른 조합으로 바꿔주세요.</td></tr>
-      <tr><td>윈도우 백신이 막아요</td><td>서명 안 된 새 프로그램이라 그래요. <b>허용</b> 또는 <b>추가 정보 → 실행</b></td></tr>
-      <tr><td>그 밖의 오류</td><td>팔레트 맨 아래 빨간 문구를 누르면 진단 정보가 복사돼요. 그대로 DM으로 보내주세요.</td></tr>
+      <tr><th>운영체제</th><th>지원 사양</th></tr>
+      <tr><td>맥 (macOS)</td><td>macOS 11 Big Sur 이상 · Apple 실리콘(M1~M4)과 인텔 맥 모두 지원</td></tr>
+      <tr><td>윈도우 (Windows)</td><td>Windows 10 · 11 (64비트)</td></tr>
+      <tr><td>필요한 권한</td><td>맥은 처음 실행할 때 <b>화면 기록</b> 권한을 허용해야 색을 뽑을 수 있어요.</td></tr>
     </table>
   </section>
 
