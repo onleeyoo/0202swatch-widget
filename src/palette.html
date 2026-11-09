@@ -460,13 +460,23 @@
     toast(items.length > 1 ? L(items.length + "개 삭제했어요", "Deleted " + items.length, items.length + " 件削除") : L("삭제했어요", "Deleted", "削除しました"));
   }
   /* drop items into project p before/after anchor (a color object) ; same project = move unless copyAll (⌥) */
+  /* a project never holds the same color twice */
+  function projHas(p, h) { h = String(h).toUpperCase(); return p.groups.some((g) => g.colors.some((c) => String(c.h).toUpperCase() === h)); }
+  let dupSkip = 0;
+  const dupMsg = () => L("이미 프로젝트에 있는 색이에요", "Already in this project", "すでにある色です");
   function dropItems(p, items, anchor, after, copyAll) {
+    dupSkip = 0;
     if (!copyAll && anchor && items.some((it) => it.ref === anchor)) return false;
     if (!p.groups.length) p.groups.push({ id: "g" + Date.now().toString(36), name: L("색", "Colors", "カラー"), colors: [] });
+    const seen = new Set();
     const put = items.map((it) => {
-      if (!copyAll && it.kind === "proj" && it.key === p.key) { p.groups.forEach((g) => { const i = g.colors.indexOf(it.ref); if (i >= 0) g.colors.splice(i, 1); }); return it.ref; }
+      if (!copyAll && it.kind === "proj" && it.key === p.key) { p.groups.forEach((g) => { const i = g.colors.indexOf(it.ref); if (i >= 0) g.colors.splice(i, 1); }); seen.add(String(it.h).toUpperCase()); return it.ref; }
+      const H = String(it.h).toUpperCase();
+      if (seen.has(H) || projHas(p, H)) { dupSkip++; return null; }
+      seen.add(H);
       const c = { h: it.h, n: it.n || "" }; if (it.o) c.o = it.o; return c;
-    });
+    }).filter(Boolean);
+    if (!put.length) return false;
     let g = p.groups[p.groups.length - 1], idx = g.colors.length;
     if (anchor) for (const gg of p.groups) { const i = gg.colors.indexOf(anchor); if (i >= 0) { g = gg; idx = i + (after ? 1 : 0); break; } }
     g.colors.splice(idx, 0, ...put);
@@ -524,6 +534,8 @@
     if (gi === null || gi === undefined || !p.groups[gi]) gi = p.groups.length - 1;
     const g = p.groups[gi];
     let item = { h: c.h, n: c.n || "" }; if (c.o) item.o = c.o;
+    dupSkip = 0;
+    if (!(c.src && c.src.kind === "proj" && c.src.key === p.key) && projHas(p, c.h)) { dupSkip = 1; return false; }
     if (c.src && c.src.kind === "proj" && c.src.key === p.key) {
       const sg = p.groups[c.src.gi]; if (!sg || !sg.colors[c.src.ci]) return false;
       item = sg.colors.splice(c.src.ci, 1)[0];
@@ -533,7 +545,7 @@
     g.colors.splice(ci, 0, item);
     save(); return true;
   }
-  function addColor(p, c) { placeColor(p, { h: c.h, n: c.n, o: c.o }, null, null); }
+  function addColor(p, c) { return placeColor(p, { h: c.h, n: c.n, o: c.o }, null, null); }
   /* the open project's area: bound ONCE (binding it on every render stacked the handlers -> many copies per drop) */
   (function bindBody() {
     const body = $("#projBody");
@@ -559,6 +571,8 @@
       const t = e.target.closest(".sw[data-ci]");
       const ok = dropItems(p, items, t ? t._ref : null, t && t.dataset.after === "1", e.altKey);
       render();
+      if (!ok && dupSkip) { toast(dupMsg()); return; }
+      if (ok && dupSkip) { toast(L("중복 " + dupSkip + "개는 빼고 넣었어요", "Skipped " + dupSkip + " duplicate(s)", "重複を除きました")); return; }
       if (ok && (e.altKey || items.some((it) => !(it.kind === "proj" && it.key === p.key)))) toast((items.length > 1 ? items.length + L("개", "", "件") : items[0].h.slice(1)) + " → '" + p.name + "'" + (e.altKey ? L(" (복제)", " (copy)", " (複製)") : ""));
     });
   })();
@@ -583,7 +597,8 @@
       }
       const items = dragItems(); if (!items.length) return;
       if (!ev.altKey && items.every((it) => it.kind === "proj" && it.key === e.key)) return;
-      dropItems(e, items, null, false, true); render();
+      const ok2 = dropItems(e, items, null, false, true); render();
+      if (!ok2) { if (dupSkip) toast(dupMsg()); return; }
       toast((items.length > 1 ? items.length + L("개", "", "件") : items[0].h.slice(1)) + " → '" + e.name + "'");
     });
     c.addEventListener("contextmenu", (ev) => { ev.preventDefault(); ev.stopPropagation(); openMenu(ev); });
@@ -874,7 +889,8 @@
     d.onclick = () => {   /* the current color (big box at the top) goes into this project */
       const h = st.last; if (!h) return;
       const pp = store.projects.find((x) => x.key === p.key); if (!pp) return;
-      placeColor(pp, { h: h, n: "" }, 0, 0); render(); toast(h.slice(1) + " → '" + pp.name + "'");   /* newest goes first */
+      if (!placeColor(pp, { h: h, n: "" }, 0, 0)) { toast(dupMsg()); return; }
+      render(); toast(h.slice(1) + " → '" + pp.name + "'");   /* newest goes first */
     };
     d.oncontextmenu = (e) => { e.preventDefault(); const ci = $("#colorIn"); ci.value = st.last || "#FFE400"; ci.dataset.p = p.key; ci.click(); };
     return d;
@@ -966,7 +982,8 @@
   $("#colorIn").addEventListener("change", (e) => {
     const p = store.projects.find((x) => x.key === e.target.dataset.p); if (!p) return;
     const h = e.target.value.toUpperCase();
-    placeColor(p, { h: h, n: "" }, 0, 0); render(); toast(h.slice(1) + " → '" + p.name + "'");
+    if (!placeColor(p, { h: h, n: "" }, 0, 0)) { toast(dupMsg()); return; }
+    render(); toast(h.slice(1) + " → '" + p.name + "'");
   });
   $("#newCancel").onclick = () => { $("#newForm").style.display = "none"; };
   $("#newName").addEventListener("keydown", (e) => { if (e.key === "Escape") $("#newForm").style.display = "none"; });
@@ -1061,7 +1078,7 @@
     const p = curProj();
     card.querySelector(".b1").textContent = p ? L("'" + p.name + "'에 조합 추가", "Add combo to '" + p.name + "'", "「" + p.name + "」に追加") : "—";
     if (!p) card.querySelector(".b1").style.display = "none";
-    card.querySelector(".b1").onclick = () => { const pp = curProj(); if (!pp) return; r.combo.forEach((q) => addColor(pp, { h: q.h })); render(); toast(L("조합 " + r.combo.length + "개를 넣었어요", "Added " + r.combo.length + " colors", "追加しました")); };
+    card.querySelector(".b1").onclick = () => { const pp = curProj(); if (!pp) return; const n = r.combo.filter((q) => addColor(pp, { h: q.h })).length; render(); toast(n ? L("조합 " + n + "개를 넣었어요" + (n < r.combo.length ? " · 중복 " + (r.combo.length - n) + "개 제외" : ""), "Added " + n + " colors", "追加しました") : dupMsg()); };
     card.querySelector(".b2").textContent = L("새 프로젝트로 저장", "Save as new project", "新規プロジェクトで保存");
     card.querySelector(".b2").onclick = () => {
       const e2 = { key: "w" + Date.now().toString(36), name: L("이미지 색 ", "Image colors ", "画像の色 ") + new Date().toLocaleDateString(), groups: [{ id: "g" + Date.now().toString(36), name: L("추천 조합", "Combo", "配色"), colors: r.combo.map((q) => ({ h: q.h, n: "" })) }, { id: "g2" + Date.now().toString(36), name: L("많이 쓰인 색", "Most used", "よく使う色"), colors: r.all.map((q) => ({ h: q.h, n: q.pct + "%" })) }] };

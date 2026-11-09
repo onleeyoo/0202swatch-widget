@@ -248,7 +248,7 @@ function gotColor(hex) {
   hex = String(hex).toUpperCase();
   clipboard.writeText(hex.slice(1));
   state.last = hex;
-  state.recent = [hex].concat(state.recent.filter(h => h !== hex)).slice(0, 50);   /* keep 50, oldest drop off */
+  state.recent = [hex].concat(state.recent.filter(h => String(h).toUpperCase() !== hex)).slice(0, 50);   /* keep 50, oldest drop off */
   saveState();
   send("picked", hex);
   showCopied(hex);
@@ -540,7 +540,7 @@ let curSaveT = null;
 ipcMain.handle("add-recent", (e, hex) => {   /* a color made with the RGB sliders / hex box goes into recent too */
   hex = share.normHex(hex); if (!hex) return;
   state.last = hex;
-  state.recent = [hex].concat(state.recent.filter(h => h !== hex)).slice(0, 50);
+  state.recent = [hex].concat(state.recent.filter(h => String(h).toUpperCase() !== hex)).slice(0, 50);
   saveState(); rebuildTray();
 });
 ipcMain.handle("set-current", (e, hex) => {
