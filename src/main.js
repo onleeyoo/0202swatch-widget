@@ -96,12 +96,25 @@ function hookLogs(w, name) {
 }
 
 /* ---------- color list (shared with the Premiere panel) ---------- */
+/* older builds created the developer's own folder names on a fresh install -> remove them on other computers (only if still empty) */
+const OLD_SEED = ["emart24", "0202PD", "PaulKim", "Sofy"];
+function isDevMachine() { try { return fs.existsSync(path.join(require("os").homedir(), "workspace", "0202SwatchWidget")); } catch (e) { return false; } }
+function cleanSeed(s) {
+  if (!s || s.seedCleaned || !Array.isArray(s.projects) || isDevMachine()) return false;
+  const empty = p => !(p.groups || []).some(g => g.colors && g.colors.length);
+  const before = s.projects.length;
+  s.projects = s.projects.filter(p => !(OLD_SEED.includes(p.name) && empty(p)));
+  if (!s.projects.length) s.projects = [{ key: "w" + Date.now().toString(36), name: T("내 프로젝트", "My project", "マイプロジェクト"), groups: [] }];
+  s.seedCleaned = true;
+  log("store: removed " + (before - s.projects.length) + " old default folders");
+  return true;
+}
 function readStore() {
   for (const f of [STORE, STORE + ".bak"]) {
-    try { const s = JSON.parse(fs.readFileSync(f, "utf8")); if (s && Array.isArray(s.projects)) { if (f !== STORE) log("store: main file broken, using backup"); return s; } } catch (e) {}
+    try { const s = JSON.parse(fs.readFileSync(f, "utf8")); if (s && Array.isArray(s.projects)) { if (f !== STORE) log("store: main file broken, using backup"); if (cleanSeed(s)) { try { writeAtomic(STORE, JSON.stringify(s)); } catch (e) {} } return s; } } catch (e) {}
   }
   if (fs.existsSync(STORE)) { try { fs.copyFileSync(STORE, STORE + ".broken-" + Date.now()); } catch (e) {} log("store: unreadable, kept a copy"); }
-  return { v: 3, projects: ["emart24", "0202PD", "PaulKim", "Sofy"].map((n, i) => ({ key: "w" + Date.now().toString(36) + i, name: n, groups: [] })), seeded: true, migratedMine: true };
+  return { v: 3, projects: [{ key: "w" + Date.now().toString(36), name: T("내 프로젝트", "My project", "マイプロジェクト"), groups: [] }], seeded: true, migratedMine: true, seedCleaned: true };
 }
 let ownWrite = 0;
 function writeAtomic(f, data) {   /* write to a temp file then rename: a crash mid-write can't leave half a file */
