@@ -615,6 +615,28 @@ function watchStore() {
   });
 }
 
+/* ---- anonymous usage stats: random install id only, no personal data ---- */
+const SB_URL = "https://dmpfjmcxnvslzsjvhmjh.supabase.co", SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtcGZqbWN4bnZzbHpzanZobWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMjc3NzUsImV4cCI6MjEwODgwMzc3NX0.LIh4M34bh-xchA8EJi_uShDt0ThVDo5fQKxKD11rkGs";
+function installId() {
+  const f = path.join(DATA_DIR, "install-id");
+  try { const v = fs.readFileSync(f, "utf8").trim(); if (/^[0-9a-f-]{36}$/.test(v)) return v; } catch (e) {}
+  const v = require("crypto").randomUUID(); mkdir(); try { fs.writeFileSync(f, v); } catch (e) {} return v;
+}
+function sbRpc(name, body) {
+  try {
+    const data = JSON.stringify(body), u = new URL(SB_URL + "/rest/v1/rpc/" + name);
+    const req = https.request({ hostname: u.hostname, path: u.pathname, method: "POST", timeout: 10000,
+      headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(data), apikey: SB_KEY, Authorization: "Bearer " + SB_KEY } }, (r) => r.resume());
+    req.on("error", () => {}); req.on("timeout", () => req.destroy()); req.end(data);
+  } catch (e) {}
+}
+function startStats() {
+  const id = installId();
+  const host = (SRC.kind === "dev" ? "dev-" : (global.__0202BETA__ ? "beta-" : "")) + (IS_MAC ? "mac" : IS_WIN ? "win" : process.platform);
+  sbRpc("s0202_hit", { p_id: id, p_v: String(CODE_VER), p_host: host });
+  setInterval(() => sbRpc("s0202_beat", { p_id: id }), 5 * 60 * 1000);
+}
+
 app.whenReady().then(() => {
   log("start code " + CODE_VER + " (" + SRC.kind + ") app " + app.getVersion() + " electron " + process.versions.electron + " " + process.platform);
   try { fs.unlinkSync(path.join(DATA_DIR, "boot-pending")); } catch (e) {}   /* this copy of the code booted fine */
@@ -653,6 +675,7 @@ app.whenReady().then(() => {
     try { fs.writeFileSync(path.join(DATA_DIR, "bad-cache"), CODE_VER); } catch (e) {}
     app.relaunch(); app.exit(0);
   }, 15000);
+  setTimeout(startStats, 3000);
   setTimeout(checkUpdate, 8000);
   setInterval(checkUpdate, 6 * 60 * 60 * 1000);
 });
