@@ -333,7 +333,7 @@ function rebuildTray() { if (tray) tray.setContextMenu(Menu.buildFromTemplate(me
 /* ---------- export / import ---------- */
 /* render the color-chip card offscreen -> nativeImage */
 async function chipImage(p, gs) {
-  const w = new BrowserWindow({ show: false, width: 1080, height: 800, useContentSize: true, webPreferences: { offscreen: true, javascript: true } });
+  const w = new BrowserWindow({ show: false, width: 1080, height: 800, useContentSize: true, transparent: true, backgroundColor: "#00000000", frame: false, webPreferences: { offscreen: true, javascript: true } });
   try {
     await w.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(share.chipHtml(p.name, gs, T("화면 어디서든 색 뽑기", "Pick colors anywhere", "どこでも色を抽出"))));
     const h = await w.webContents.executeJavaScript("document.documentElement.scrollHeight");
