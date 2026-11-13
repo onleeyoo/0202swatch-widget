@@ -66,6 +66,39 @@ function aseDecode(buf, fb) {
   if (loose.colors.length) groups.unshift(loose);
   return groups;
 }
+/* Photoshop .aco: v1 block (no names) + v2 block (with names), RGB, 16-bit channels. no groups -> flat list */
+function acoEncode(groups) {
+  const list = []; groups.forEach(g => g.colors.forEach(c => { const h = normHex(c.h); if (h) list.push({ h, n: c.n || h }); }));
+  const u16 = v => { const b = Buffer.alloc(2); b.writeUInt16BE(v, 0); return b; };
+  const col = h => { const n = parseInt(h.slice(1), 16), b = Buffer.alloc(10); b.writeUInt16BE(0, 0); b.writeUInt16BE(((n >> 16) & 255) * 257, 2); b.writeUInt16BE(((n >> 8) & 255) * 257, 4); b.writeUInt16BE((n & 255) * 257, 6); b.writeUInt16BE(0, 8); return b; };
+  const nm = s => { s = String(s).slice(0, 100); const b = Buffer.alloc(4 + (s.length + 1) * 2); b.writeUInt32BE(s.length + 1, 0); for (let i = 0; i < s.length; i++) b.writeUInt16BE(s.charCodeAt(i), 4 + i * 2); return b; };
+  const parts = [u16(1), u16(list.length)];
+  list.forEach(c => parts.push(col(c.h)));
+  parts.push(u16(2), u16(list.length));
+  list.forEach(c => parts.push(col(c.h), nm(c.n)));
+  return Buffer.concat(parts);
+}
+function acoDecode(buf, fb) {
+  const hx = (r, g, b) => "#" + [r, g, b].map(v => { v = Math.max(0, Math.min(255, Math.round(v))).toString(16); return v.length < 2 ? "0" + v : v; }).join("").toUpperCase();
+  const read = (o, v2) => {
+    const cnt = buf.readUInt16BE(o + 2), out = []; o += 4;
+    for (let i = 0; i < cnt && o + 10 <= buf.length; i++) {
+      const sp = buf.readUInt16BE(o), w = [1, 2, 3, 4].map(k => buf.readUInt16BE(o + k * 2)); o += 10; let h = null, n = "";
+      if (sp === 0) h = hx(w[0] / 257, w[1] / 257, w[2] / 257);
+      else if (sp === 8) h = hx(w[0] / 10000 * 255, w[0] / 10000 * 255, w[0] / 10000 * 255);
+      else if (sp === 2) { const k = 1 - w[3] / 65535; h = hx(255 * (w[0] / 65535) * k, 255 * (w[1] / 65535) * k, 255 * (w[2] / 65535) * k); }
+      if (v2) { const len = buf.readUInt32BE(o); o += 4; for (let j = 0; j < len; j++) { const ch = buf.readUInt16BE(o + j * 2); if (ch) n += String.fromCharCode(ch); } o += len * 2; }
+      if (h) out.push({ h, n: /^#?[0-9A-F]{6}$/i.test(n) ? "" : n });
+    }
+    return { out, o };
+  };
+  try {
+    if (buf.readUInt16BE(0) !== 1 && buf.readUInt16BE(0) !== 2) return null;
+    let r = read(0, buf.readUInt16BE(0) === 2);
+    if (buf.readUInt16BE(0) === 1 && r.o + 4 <= buf.length && buf.readUInt16BE(r.o) === 2) r = read(r.o, true);
+    return r.out.length ? [{ name: fb, colors: r.out }] : null;
+  } catch (e) { return null; }
+}
 function safeName(s) { return String(s || "0202Swatch").replace(/[\\/:*?"<>|]/g, "_"); }
 
 /* color-chip share image (HTML rendered offscreen -> PNG) */
@@ -96,4 +129,4 @@ function chipHtml(project, groups, foot) {
     '</style></head><body><div class="card"><div class="top"><h1>' + esc(project) + '</h1></div>' + body +
     '<div class="foot"><div class="logo"><span class="dot"></span><span>0202<b>Swatch</b></span></div></div></div></body></html>';
 }
-module.exports = { normHex, liveGroups, toCode, parseText, aseEncode, aseDecode, safeName, chipHtml };
+module.exports = { normHex, liveGroups, toCode, parseText, aseEncode, aseDecode, acoEncode, acoDecode, safeName, chipHtml };

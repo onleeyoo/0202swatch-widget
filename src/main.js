@@ -366,7 +366,8 @@ function exportMenu(p) {
     { type: "separator" },
     { label: T("공유 코드 복사 (카톡·슬랙에 붙여넣기)", "Copy share code (paste in chat)", "共有コードをコピー"), click: () => { clipboard.writeText(share.toCode(gs, p.name)); status(T("공유 코드를 복사했어요 · 팀원은 불러오기 → 코드 붙여넣기", "Share code copied · teammates use Import → paste", "共有コードをコピーしました")); } },
     { label: T("파일로 저장 (.0202swatch)", "Save as file (.0202swatch)", "ファイルで保存 (.0202swatch)"), click: () => saveAs("0202swatch", "0202Swatch", JSON.stringify({ app: "0202Swatch", v: 1, project: p.name, groups: gs }, null, 1)) },
-    { label: T("ASE로 저장 (포토샵·일러·AE 스와치)", "Save as .ase (Photoshop / Illustrator / AE)", ".ase で保存"), click: () => saveAs("ase", "Adobe Swatch Exchange", share.aseEncode(gs)) }
+    { label: T("포토샵 스와치로 저장 (.aco)", "Save as Photoshop swatches (.aco)", "Photoshop スウォッチで保存 (.aco)"), click: () => saveAs("aco", "Photoshop Swatches", share.acoEncode(gs)) },
+    { label: T("ASE로 저장 (일러스트레이터·AE 스와치)", "Save as .ase (Illustrator / AE)", ".ase で保存"), click: () => saveAs("ase", "Adobe Swatch Exchange", share.aseEncode(gs)) }
   ]).popup({ window: win });
 }
 function presets() { try { return JSON.parse(fs.readFileSync(path.join(__dirname, "presets.json"), "utf8")); } catch (e) { return []; } }
@@ -383,8 +384,8 @@ function importMenu() {
         fin({ name: gs.project || (gs.length === 1 ? gs[0].name : T("가져온 색", "Imported", "読み込んだ色")), groups: gs });
       } },
       { type: "separator" },
-      { label: T("파일 열기 (.0202swatch · .ase)", "Open file (.0202swatch, .ase)", "ファイルを開く"), click: async () => { chosen = true;
-        const r = await dialog.showOpenDialog(win, { properties: ["openFile", "multiSelections"], filters: [{ name: "Swatches", extensions: ["0202swatch", "ase", "json", "txt"] }] });
+      { label: T("파일 열기 (.0202swatch · .aco · .ase)", "Open file (.0202swatch, .aco, .ase)", "ファイルを開く"), click: async () => { chosen = true;
+        const r = await dialog.showOpenDialog(win, { properties: ["openFile", "multiSelections"], filters: [{ name: "Swatches", extensions: ["0202swatch", "aco", "ase", "json", "txt"] }] });
         if (r.canceled || !r.filePaths.length) return fin(null);
         const out = [];
         r.filePaths.forEach(f => {
@@ -393,6 +394,7 @@ function importMenu() {
             const buf = fs.readFileSync(f);
             let gs = null, pname = nm;
             if (/\.ase$/i.test(f)) gs = share.aseDecode(buf, nm);
+            else if (/\.aco$/i.test(f)) gs = share.acoDecode(buf, nm);
             else { const t = buf.toString("utf8"); try { const j = JSON.parse(t); if (j.project) pname = j.project; } catch (e) {} gs = share.parseText(t, nm); }
             if (gs && gs.length) out.push({ name: pname, groups: gs });
           } catch (e) { log("import " + f + " " + e.message); }
