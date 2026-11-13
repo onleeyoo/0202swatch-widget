@@ -299,7 +299,12 @@ function openPalette() {
   palette.once("ready-to-show", () => { palette.show(); if (IS_MAC) app.focus({ steal: true }); palette.focus(); });
   palette.on("closed", () => { palette = null; });
 }
-function reloadApp() { log("reload"); app.relaunch(); app.exit(0); }
+/* ↻: look for a newer version first, so one press always ends on the latest code */
+async function reloadApp() {
+  log("reload");
+  if (SRC.kind !== "dev") { status(T("새 버전 확인 중…", "Checking for updates…", "更新を確認中…")); try { await Promise.race([checkUpdate(), new Promise(r => setTimeout(r, 60000))]); } catch (e) {} }
+  app.relaunch(); app.exit(0);
+}
 
 /* ---------- menus ---------- */
 function menuTemplate() {
