@@ -1046,8 +1046,8 @@
     push(all.slice().sort((a, b) => a.l - b.l)[0]);
     push(all.slice().sort((a, b) => b.l - a.l)[0]);
     push(all.slice().filter((q) => q.l > .2 && q.l < .85).sort((a, b) => b.s - a.s)[0]);
-    all.forEach((q) => { if (combo.length < 5) push(q); });
-    return { all: all.slice(0, 8), combo: combo.slice(0, 5) };
+    all.forEach((q) => { if (combo.length < 6) push(q); });
+    return { all: all.slice(0, 8), combo: combo.slice(0, 6) };
   }
   let imgRes = null;
   function showImage(src) {
