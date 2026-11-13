@@ -617,6 +617,79 @@ function watchStore() {
   });
 }
 
+/* ---- subject finder (on-device AI, downloaded on first use) ----
+   two background-removal models: "anime" is good at characters in drawings, "general" at people / objects / designs.
+   anime runs first; if it finds no clear subject, general runs. each file is downloaded the first time it is needed */
+const AI_VER = "v1", AI_DIR = path.join(DATA_DIR, "ai-" + AI_VER), AI_SIZE = 1024;
+const AI_MODELS = { anime: { mean: 0 }, general: { mean: .5 } };
+let aiMan = null, aiWorker = null, aiSeq = 0; const aiWait = new Map(), aiFileJobs = {};
+function download(url, dest, onProgress) {
+  return new Promise((resolve) => {
+    const req = https.get(url, { timeout: 20000, headers: { "User-Agent": "0202Swatch" } }, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) { res.resume(); return resolve(download(res.headers.location, dest, onProgress)); }
+      if (res.statusCode !== 200) { res.resume(); return resolve(false); }
+      let got = 0; const out = fs.createWriteStream(dest);
+      res.on("data", (c) => { got += c.length; if (onProgress) onProgress(got); });
+      res.pipe(out); out.on("finish", () => out.close(() => resolve(true))); res.on("error", () => resolve(false)); out.on("error", () => resolve(false));
+    });
+    req.on("timeout", () => { req.destroy(); resolve(false); });
+    req.on("error", () => resolve(false));
+  });
+}
+async function aiFiles(files) {
+  mkdir(AI_DIR);
+  const need = files.filter((f) => !fs.existsSync(path.join(AI_DIR, f)));
+  if (!need.length) return;
+  if (!aiMan) { const b = await get(UPDATE_BASES[0] + "ai/" + AI_VER + "/manifest.json"); try { aiMan = JSON.parse(b.toString("utf8")); } catch (e) { throw new Error("manifest"); } }
+  const total = need.reduce((a, f) => a + aiMan[f].size, 0); let done = 0;
+  for (const f of need) {
+    if (!aiFileJobs[f]) aiFileJobs[f] = (async () => {
+      const dest = path.join(AI_DIR, f), tmp = dest + ".part";
+      const ok = await download(UPDATE_BASES[0] + "ai/" + AI_VER + "/" + f, tmp, (g) => send("ai-progress", Math.min(99, Math.round((done + g) / total * 100))));
+      if (!ok) throw new Error("download " + f);
+      const sha = require("crypto").createHash("sha256").update(fs.readFileSync(tmp)).digest("hex");
+      if (sha !== aiMan[f].sha256) { try { fs.unlinkSync(tmp); } catch (e) {} throw new Error("checksum " + f); }
+      fs.renameSync(tmp, dest);
+    })().finally(() => { delete aiFileJobs[f]; });
+    await aiFileJobs[f]; done += aiMan[f].size;
+  }
+  log("ai files ready " + need.join(","));
+}
+function aiRun(model, input) {
+  if (!aiWorker) {
+    const { Worker } = require("worker_threads");
+    aiWorker = new Worker(path.join(__dirname, "ai-worker.js"), { workerData: { dir: AI_DIR } });
+    aiWorker.on("message", (m) => { const w = aiWait.get(m.id); if (w) { aiWait.delete(m.id); m.err ? w.reject(new Error(m.err)) : w.resolve(m.mask); } });
+    aiWorker.on("error", (e) => { log("ai worker " + e.message); aiWait.forEach((w) => w.reject(e)); aiWait.clear(); aiWorker = null; });
+    aiWorker.on("exit", () => { aiWorker = null; });
+  }
+  return new Promise((resolve, reject) => { const id = ++aiSeq; aiWait.set(id, { resolve, reject }); aiWorker.postMessage({ id, model, input, size: AI_SIZE }, [input.buffer]); });
+}
+/* image data URL -> subject mask (probability 0..1 per pixel) at w x h, or null when no clear subject */
+ipcMain.handle("subject-mask", async (e, src, w, h) => {
+  try {
+    const img = nativeImage.createFromDataURL(src); if (img.isEmpty()) return null;
+    const bmp = img.resize({ width: AI_SIZE, height: AI_SIZE, quality: "good" }).toBitmap();   /* BGRA */
+    const N = AI_SIZE * AI_SIZE;
+    for (const model of ["anime", "general"]) {
+      await aiFiles(["ort.node.min.js", "ort-wasm-simd.wasm", model + ".onnx"]);
+      const mean = AI_MODELS[model].mean, input = new Float32Array(3 * N);
+      for (let i = 0; i < N; i++) { input[i] = bmp[i * 4 + 2] / 255 - mean; input[N + i] = bmp[i * 4 + 1] / 255 - mean; input[2 * N + i] = bmp[i * 4] / 255 - mean; }
+      const t = Date.now(), m = await aiRun(model, input);
+      const out = new Array(w * h).fill(0), sx = AI_SIZE / w, sy = AI_SIZE / h; let on = 0;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        let s2 = 0, n = 0;
+        for (let yy = Math.floor(y * sy); yy < Math.floor((y + 1) * sy); yy++) for (let xx = Math.floor(x * sx); xx < Math.floor((x + 1) * sx); xx++) { s2 += m[yy * AI_SIZE + xx]; n++; }
+        const v = n ? s2 / n : 0; out[y * w + x] = v; if (v > .5) on++;
+      }
+      const frac = on / (w * h);
+      log("ai " + model + " " + (Date.now() - t) + "ms subject " + Math.round(frac * 100) + "%");
+      if (frac > .01 && frac < .9) return out;
+    }
+    return null;
+  } catch (err) { log("ai subject failed " + (err && err.message)); return null; }
+});
+
 /* ---- anonymous usage stats: random install id only, no personal data ---- */
 const SB_URL = "https://dmpfjmcxnvslzsjvhmjh.supabase.co", SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtcGZqbWN4bnZzbHpzanZobWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMjc3NzUsImV4cCI6MjEwODgwMzc3NX0.LIh4M34bh-xchA8EJi_uShDt0ThVDo5fQKxKD11rkGs";
 function installId() {

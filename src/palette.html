@@ -1010,12 +1010,14 @@
     save(); render(); toast(L(list.length + "개 프로젝트를 불러왔어요", "Imported " + list.length + " project(s)", list.length + "件読み込みました"));
   };
   /* ---------- colors from an image (open / drop / paste / screen capture) ---------- */
-  function extractColors(img) {
+  /* colors from an image.
+     peaks: find the densest color spot, pull it to its local center, take it out, repeat -> real colors, small vivid areas survive.
+     mask (optional, from the on-device AI): how much each pixel belongs to the main subject (character / object) */
+  function extractColors(img, mask) {
     const c = document.createElement("canvas"), k = Math.min(1, 160 / Math.max(img.naturalWidth, img.naturalHeight));
     const W = c.width = Math.max(1, Math.round(img.naturalWidth * k)), H = c.height = Math.max(1, Math.round(img.naturalHeight * k));
     const x = c.getContext("2d"); x.drawImage(img, 0, 0, W, H);
     const d = x.getImageData(0, 0, W, H).data;
-    /* Lab: distances match how different colors look */
     const lin = (v) => { v /= 255; return v <= .04045 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
     const toLab = (r, g, b2) => {
       r = lin(r); g = lin(g); b2 = lin(b2);
@@ -1023,82 +1025,111 @@
       const f = (t) => t > .008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116, fx = f(X), fy = f(Y), fz = f(Z);
       return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
     };
-    const pts = [], rgbs = [], cw = [];
+    const pts = [], rgbs = [], cw = [], mk = [];
     for (let i = 0, p = 0; i < d.length; i += 4, p++) {
       if (d[i + 3] <= 200) continue;
       pts.push(toLab(d[i], d[i + 1], d[i + 2])); rgbs.push([d[i], d[i + 1], d[i + 2]]);
       const dx = ((p % W) / W - .5) / .5, dy = (Math.floor(p / W) / H - .55) / .5;
-      cw.push(1 + 1.5 * Math.exp(-(dx * dx + dy * dy) / .35));   /* subjects sit near the middle: count them a bit more */
+      cw.push(1 + 1.5 * Math.exp(-(dx * dx + dy * dy) / .35));
+      mk.push(mask && mask.length === W * H ? mask[p] : 0);
     }
     const N = pts.length; if (!N) return null;
     const d2 = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
-    /* find color "peaks": the densest spot, pull it to the local center, take it out, repeat.
-       peaks are real colors in the image (not averages of neighbours), so small vivid areas survive */
-    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    const R2 = 10 * 10, S2 = 20 * 20, alive = new Uint8Array(N).fill(1), cwSum = cw.reduce((a, b) => a + b, 0), out = [];
-    for (let step = 0; step < 14; step++) {
-      const idx = []; for (let i = 0; i < N; i++) if (alive[i]) idx.push(i);
-      if (idx.length < N * .005) break;
-      let best = null, bd = -1;
-      for (let s = 0; s < Math.min(250, idx.length); s++) {
-        const cc = pts[idx[Math.floor(rnd() * idx.length)]]; let n = 0;
-        for (const i of idx) if (d2(pts[i], cc) < R2) n++;
-        if (n > bd) { bd = n; best = cc; }
-      }
-      let ce = best.slice();
-      for (let it = 0; it < 6; it++) {
-        const m = [0, 0, 0]; let n = 0;
-        for (const i of idx) if (d2(pts[i], ce) < R2) { m[0] += pts[i][0]; m[1] += pts[i][1]; m[2] += pts[i][2]; n++; }
-        if (!n) break; ce = [m[0] / n, m[1] / n, m[2] / n];
-      }
-      const rg = [0, 0, 0]; let nc = 0, ns = 0, ws = 0;
-      for (const i of idx) {
-        const v = d2(pts[i], ce);
-        if (v < R2) { rg[0] += rgbs[i][0]; rg[1] += rgbs[i][1]; rg[2] += rgbs[i][2]; nc++; }
-        if (v < S2) { alive[i] = 0; ns++; ws += cw[i]; }
-      }
-      if (!ns) break;
-      const rgb = nc ? rg.map((v) => Math.round(v / nc)) : rgbs[idx[0]];
-      out.push({ rgb, lab: toLab(rgb[0], rgb[1], rgb[2]), share: ns / N, ws: ws / cwSum });
-    }
-    /* soft edges blend two real colors (blue + white -> light blue): a small peak lying between two much bigger ones is folded in */
-    out.sort((a, b) => b.share - a.share);
-    for (let i = out.length - 1; i >= 0; i--) {
-      const q = out[i]; let to = null;
-      for (const A of out) for (const B of out) {
-        if (to || A === B || A === q || B === q || q.share > .4 * Math.min(A.share, B.share)) continue;
-        const ab = [0, 1, 2].map((j) => A.lab[j] - B.lab[j]), qb = [0, 1, 2].map((j) => q.lab[j] - B.lab[j]);
-        const L2 = ab[0] ** 2 + ab[1] ** 2 + ab[2] ** 2; if (!L2) continue;
-        const t = (qb[0] * ab[0] + qb[1] * ab[1] + qb[2] * ab[2]) / L2; if (t < .06 || t > .94) continue;
-        const off = [0, 1, 2].map((j) => qb[j] - t * ab[j]);
-        if (off[0] ** 2 + off[1] ** 2 + off[2] ** 2 < 10 * 10) to = t > .5 ? A : B;
-      }
-      if (to) { to.share += q.share; to.ws += q.ws; out.splice(i, 1); }
-    }
     const hex = (r) => "#" + r.map((v) => ("0" + v.toString(16)).slice(-2)).join("").toUpperCase();
-    const all = out.sort((a, b) => b.share - a.share).map((q) => ({ ...q, h: hex(q.rgb), pct: Math.max(1, Math.round(q.share * 100)), l: q.lab[0] / 100, ch: Math.hypot(q.lab[1], q.lab[2]) }));
-    /* combo: main color first; clear white/black if it's a real part of the image;
-       then colors that stand out — vivid, not tiny, and different from the big background colors */
+    function peaks(sel) {
+      let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      const R2 = 10 * 10, S2 = 20 * 20, alive = new Uint8Array(N), out = [], M = sel.length;
+      sel.forEach((i) => { alive[i] = 1; });
+      const cwSum = sel.reduce((a, i) => a + cw[i], 0);
+      for (let step = 0; step < 14; step++) {
+        const idx = sel.filter((i) => alive[i]);
+        if (idx.length < M * .005 || !idx.length) break;
+        let best = null, bd = -1;
+        for (let s = 0; s < Math.min(250, idx.length); s++) {
+          const cc = pts[idx[Math.floor(rnd() * idx.length)]]; let n = 0;
+          for (const i of idx) if (d2(pts[i], cc) < R2) n++;
+          if (n > bd) { bd = n; best = cc; }
+        }
+        let ce = best.slice();
+        for (let it = 0; it < 6; it++) {
+          const m = [0, 0, 0]; let n = 0;
+          for (const i of idx) if (d2(pts[i], ce) < R2) { m[0] += pts[i][0]; m[1] += pts[i][1]; m[2] += pts[i][2]; n++; }
+          if (!n) break; ce = [m[0] / n, m[1] / n, m[2] / n];
+        }
+        const rg = [0, 0, 0]; let nc = 0, ns = 0, ws = 0;
+        for (const i of idx) {
+          const v = d2(pts[i], ce);
+          if (v < R2) { rg[0] += rgbs[i][0]; rg[1] += rgbs[i][1]; rg[2] += rgbs[i][2]; nc++; }
+          if (v < S2) { alive[i] = 0; ns++; ws += cw[i]; }
+        }
+        if (!ns) break;
+        const rgb = nc ? rg.map((v) => Math.round(v / nc)) : rgbs[idx[0]];
+        out.push({ rgb, lab: toLab(rgb[0], rgb[1], rgb[2]), share: ns / M, ws: ws / cwSum });
+      }
+      /* soft edges blend two real colors (blue + white -> light blue): a small peak lying between two much bigger ones is folded in */
+      out.sort((a, b) => b.share - a.share);
+      for (let i = out.length - 1; i >= 0; i--) {
+        const q = out[i]; let to = null;
+        for (const A of out) for (const B of out) {
+          if (to || A === B || A === q || B === q || q.share > .4 * Math.min(A.share, B.share)) continue;
+          const ab = [0, 1, 2].map((j) => A.lab[j] - B.lab[j]), qb = [0, 1, 2].map((j) => q.lab[j] - B.lab[j]);
+          const L2 = ab[0] ** 2 + ab[1] ** 2 + ab[2] ** 2; if (!L2) continue;
+          const t = (qb[0] * ab[0] + qb[1] * ab[1] + qb[2] * ab[2]) / L2; if (t < .06 || t > .94) continue;
+          const off = [0, 1, 2].map((j) => qb[j] - t * ab[j]);
+          if (off[0] ** 2 + off[1] ** 2 + off[2] ** 2 < 10 * 10) to = t > .5 ? A : B;
+        }
+        if (to) { to.share += q.share; to.ws += q.ws; out.splice(i, 1); }
+      }
+      return out.sort((a, b) => b.share - a.share).map((q) => ({ ...q, h: hex(q.rgb), pct: Math.max(1, Math.round(q.share * 100)), l: q.lab[0] / 100, ch: Math.hypot(q.lab[1], q.lab[2]) }));
+    }
+    const everyone = []; for (let i = 0; i < N; i++) everyone.push(i);
+    const all = peaks(everyone);
     const dom = all.filter((q) => q.share > .12);
     all.forEach((q) => {
       const others = dom.filter((p) => p !== q), de = others.length ? Math.min.apply(null, others.map((p) => Math.sqrt(d2(p.lab, q.lab)))) : 60;
       q.score = Math.pow(q.ws, .35) * (.3 + q.ch / 45) * (.4 + Math.min(de, 70) / 35);
     });
-    const combo = [all[0]];
-    const ok = (q, m) => !combo.includes(q) && combo.every((p) => d2(p.lab, q.lab) > m * m);
+    const combo = [];
+    const ok = (q, m) => q && !combo.includes(q) && combo.every((p) => d2(p.lab, q.lab) > m * m);
+    /* 1) the main subject's colors (if the AI found one) */
+    let subject = false;
+    if (mask) {
+      const sub = []; for (let i = 0; i < N; i++) if (mk[i] > .5) sub.push(i);
+      const frac = sub.length / N;
+      if (frac > .01 && frac < .9) {
+        subject = true;
+        const sp = peaks(sub).filter((q) => q.share > .03);
+        sp.forEach((q) => { q.score = Math.sqrt(q.share) * (.4 + q.ch / 45); });
+        [20, 12].forEach((m) => sp.slice().sort((a, b) => b.score - a.score).forEach((q) => { if (combo.length < 4 && ok(q, m)) combo.push(q); }));
+      }
+    }
+    /* 2) the background / main color, then a clear white or black if it is part of the look */
+    if (ok(all[0], 18)) combo.push(all[0]);
     [all.filter((q) => q.share > .03).sort((a, b) => b.l - a.l)[0], all.filter((q) => q.share > .03).sort((a, b) => a.l - b.l)[0]].forEach((q) => {
-      if (q && (q.l > .85 || q.l < .15) && ok(q, 20)) combo.push(q);
+      if (combo.length < 6 && q && (q.l > .85 || q.l < .15) && ok(q, 20)) combo.push(q);
     });
+    /* 3) colors that stand out: vivid, not tiny, different from the big background colors */
     [22, 14, 8, 0].forEach((m) => all.slice().sort((a, b) => b.score - a.score).forEach((q) => { if (combo.length < 6 && ok(q, m)) combo.push(q); }));
-    return { all: all.slice(0, 8), combo: combo.slice(0, 6) };
+    return { all: all.slice(0, 8), combo: combo.slice(0, 6), W, H, subject };
   }
-  let imgRes = null;
+  let imgRes = null, imgSeq = 0;
   function showImage(src) {
-    const img = new Image();
-    img.onload = () => { const r = extractColors(img); if (!r) return toast(L("색을 찾지 못했어요", "No colors found", "色が見つかりません")); slide("img", $("#imgBox"), imgRes ? $("#imgBox").getBoundingClientRect().height : 0, null, (x) => x, () => { imgRes = { src, r }; renderImg(); }, null); };
+    const img = new Image(), seq = ++imgSeq;
+    img.onload = () => {
+      const r = extractColors(img); if (!r) return toast(L("색을 찾지 못했어요", "No colors found", "色が見つかりません"));
+      slide("img", $("#imgBox"), imgRes ? $("#imgBox").getBoundingClientRect().height : 0, null, (x) => x, () => { imgRes = { src, r, ai: "busy" }; renderImg(); }, null);
+      /* then ask the on-device AI where the main subject is, and redo the combo around it */
+      if (!window.sw.subjectMask) return;
+      window.sw.subjectMask(src, r.W, r.H).then((mask) => {
+        if (seq !== imgSeq || !imgRes || imgRes.src !== src) return;
+        const r2 = mask ? extractColors(img, mask) : null;
+        imgRes = { src, r: r2 && r2.subject ? r2 : r, ai: r2 && r2.subject ? "ok" : "none" }; renderImg();
+      }).catch(() => { if (seq === imgSeq && imgRes) { imgRes.ai = "none"; renderImg(); } });
+    };
     img.onerror = () => toast(L("이미지를 읽지 못했어요", "Couldn't read the image", "画像を読み込めません"));
     img.src = src;
   }
+  window.sw.on && window.sw.on("ai-progress", (p) => { const el = document.querySelector(".imgCard .l1"); if (el && imgRes && imgRes.ai === "busy") el.textContent = L("AI 모델 받는 중 (처음 한 번) · " + p + "%", "Downloading AI model (first time) · " + p + "%", "AIモデルをダウンロード中 · " + p + "%"); });
   /* window height follows the image card: grows upward when it opens, shrinks back when it closes */
   function renderImg() {
     const box = $("#imgBox"); box.innerHTML = "";
@@ -1108,7 +1139,9 @@
     card.querySelector("img").src = src;
     card.querySelector(".tt").textContent = L("이미지에서 뽑은 색", "Colors from image", "画像の色");
     card.querySelector(".ib").onclick = () => slide("img", $("#imgBox"), null, 0, (x) => x, null, () => { imgRes = null; renderImg(); });
-    card.querySelector(".l1").textContent = L("추천 조합 · 클릭하면 복사", "Suggested combo · click to copy", "おすすめ配色 · クリックでコピー");
+    card.querySelector(".l1").textContent = imgRes.ai === "busy" ? L("추천 조합 · 주인공 찾는 중…", "Suggested combo · finding the subject…", "おすすめ配色 · 主役を探しています…")
+      : imgRes.ai === "ok" ? L("추천 조합 · 주인공 색 먼저 · 클릭하면 복사", "Suggested combo · subject first · click to copy", "おすすめ配色 · 主役の色から · クリックでコピー")
+      : L("추천 조합 · 클릭하면 복사", "Suggested combo · click to copy", "おすすめ配色 · クリックでコピー");
     const strip = card.querySelector(".strip");
     r.combo.forEach((q) => {
       const sp = document.createElement("span"); sp.style.background = q.h; sp.title = q.h; sp.onclick = () => copy(q.h);
