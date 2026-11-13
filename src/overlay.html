@@ -51,13 +51,13 @@
     cur = at(e.clientX, e.clientY);
     zc.clearRect(0, 0, 15, 15);
     zc.drawImage(shot, cur.x - 7, cur.y - 7, 15, 15, 0, 0, 15, 15);
-    let lx = e.clientX + 24, ly = e.clientY + 24;
-    if (lx + 160 > innerWidth) lx = e.clientX - 174;
-    if (ly + 190 > innerHeight) ly = e.clientY - 214;
+    /* the loupe sits right on the cursor: its center square is exactly the pixel that gets picked
+       (it used to sit off to the side, so people aimed with the square while the hidden cursor picked elsewhere) */
+    const lx = e.clientX - 78, ly = e.clientY - 78;   /* 150px zoom + 3px border: pixel 7 of 15 lands on the cursor */
     loupe.style.left = lx + "px"; loupe.style.top = ly + "px"; loupe.style.display = "block";
     loupe.style.borderColor = cur.hex;
-    center.style.left = (lx + 71) + "px"; center.style.top = (ly + 71) + "px"; center.style.display = "block";
-    label.style.left = (lx + 75 - 40) + "px"; label.style.top = (ly + 162) + "px"; label.style.display = "block";
+    center.style.left = (e.clientX - 7) + "px"; center.style.top = (e.clientY - 7) + "px"; center.style.display = "block";
+    label.style.left = (e.clientX - 40) + "px"; label.style.top = (ly + 166 + 30 > innerHeight ? ly - 34 : ly + 166) + "px"; label.style.display = "block";
     label.querySelector("i").style.background = cur.hex; label.querySelector("span").textContent = cur.hex.slice(1);
   });
   addEventListener("mousedown", (e) => {
