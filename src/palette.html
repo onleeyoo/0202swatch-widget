@@ -1011,61 +1011,85 @@
   };
   /* ---------- colors from an image (open / drop / paste / screen capture) ---------- */
   function extractColors(img) {
-    const c = document.createElement("canvas"), k = Math.min(1, 140 / Math.max(img.naturalWidth, img.naturalHeight));
-    c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
-    const x = c.getContext("2d"); x.drawImage(img, 0, 0, c.width, c.height);
-    const d = x.getImageData(0, 0, c.width, c.height).data, pts = [];
-    for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) pts.push([d[i], d[i + 1], d[i + 2]]);
-    if (!pts.length) return null;
-    /* k-means (k-means++ start) */
-    const K = Math.min(10, pts.length), cen = [pts[Math.floor(Math.random() * pts.length)].slice()];
+    const c = document.createElement("canvas"), k = Math.min(1, 160 / Math.max(img.naturalWidth, img.naturalHeight));
+    const W = c.width = Math.max(1, Math.round(img.naturalWidth * k)), H = c.height = Math.max(1, Math.round(img.naturalHeight * k));
+    const x = c.getContext("2d"); x.drawImage(img, 0, 0, W, H);
+    const d = x.getImageData(0, 0, W, H).data;
+    /* Lab: distances match how different colors look */
+    const lin = (v) => { v /= 255; return v <= .04045 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+    const toLab = (r, g, b2) => {
+      r = lin(r); g = lin(g); b2 = lin(b2);
+      const X = (r * .4124 + g * .3576 + b2 * .1805) / .95047, Y = r * .2126 + g * .7152 + b2 * .0722, Z = (r * .0193 + g * .1192 + b2 * .9505) / 1.08883;
+      const f = (t) => t > .008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116, fx = f(X), fy = f(Y), fz = f(Z);
+      return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+    };
+    const pts = [], rgbs = [], cw = [];
+    for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+      if (d[i + 3] <= 200) continue;
+      pts.push(toLab(d[i], d[i + 1], d[i + 2])); rgbs.push([d[i], d[i + 1], d[i + 2]]);
+      const dx = ((p % W) / W - .5) / .5, dy = (Math.floor(p / W) / H - .55) / .5;
+      cw.push(1 + 1.5 * Math.exp(-(dx * dx + dy * dy) / .35));   /* subjects sit near the middle: count them a bit more */
+    }
+    const N = pts.length; if (!N) return null;
     const d2 = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
-    while (cen.length < K) {
-      const ds = pts.map((p) => Math.min.apply(null, cen.map((q) => d2(p, q)))), sum = ds.reduce((a, b) => a + b, 0);
-      let r = Math.random() * sum, i = 0; while (r > ds[i] && i < ds.length - 1) { r -= ds[i]; i++; }
-      cen.push(pts[i].slice());
+    /* find color "peaks": the densest spot, pull it to the local center, take it out, repeat.
+       peaks are real colors in the image (not averages of neighbours), so small vivid areas survive */
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const R2 = 10 * 10, S2 = 20 * 20, alive = new Uint8Array(N).fill(1), cwSum = cw.reduce((a, b) => a + b, 0), out = [];
+    for (let step = 0; step < 14; step++) {
+      const idx = []; for (let i = 0; i < N; i++) if (alive[i]) idx.push(i);
+      if (idx.length < N * .005) break;
+      let best = null, bd = -1;
+      for (let s = 0; s < Math.min(250, idx.length); s++) {
+        const cc = pts[idx[Math.floor(rnd() * idx.length)]]; let n = 0;
+        for (const i of idx) if (d2(pts[i], cc) < R2) n++;
+        if (n > bd) { bd = n; best = cc; }
+      }
+      let ce = best.slice();
+      for (let it = 0; it < 6; it++) {
+        const m = [0, 0, 0]; let n = 0;
+        for (const i of idx) if (d2(pts[i], ce) < R2) { m[0] += pts[i][0]; m[1] += pts[i][1]; m[2] += pts[i][2]; n++; }
+        if (!n) break; ce = [m[0] / n, m[1] / n, m[2] / n];
+      }
+      const rg = [0, 0, 0]; let nc = 0, ns = 0, ws = 0;
+      for (const i of idx) {
+        const v = d2(pts[i], ce);
+        if (v < R2) { rg[0] += rgbs[i][0]; rg[1] += rgbs[i][1]; rg[2] += rgbs[i][2]; nc++; }
+        if (v < S2) { alive[i] = 0; ns++; ws += cw[i]; }
+      }
+      if (!ns) break;
+      const rgb = nc ? rg.map((v) => Math.round(v / nc)) : rgbs[idx[0]];
+      out.push({ rgb, lab: toLab(rgb[0], rgb[1], rgb[2]), share: ns / N, ws: ws / cwSum });
     }
-    let asg = new Array(pts.length).fill(0);
-    for (let it = 0; it < 12; it++) {
-      for (let i = 0; i < pts.length; i++) { let b = 0, bd = Infinity; for (let j = 0; j < K; j++) { const v = d2(pts[i], cen[j]); if (v < bd) { bd = v; b = j; } } asg[i] = b; }
-      const s = cen.map(() => [0, 0, 0, 0]);
-      for (let i = 0; i < pts.length; i++) { const q = s[asg[i]]; q[0] += pts[i][0]; q[1] += pts[i][1]; q[2] += pts[i][2]; q[3]++; }
-      s.forEach((q, j) => { if (q[3]) cen[j] = [q[0] / q[3], q[1] / q[3], q[2] / q[3]]; });
-    }
-    const cnt = cen.map(() => 0); asg.forEach((a) => cnt[a]++);
-    let cl = cen.map((c2, j) => ({ rgb: c2.map(Math.round), n: cnt[j] })).filter((q) => q.n).sort((a, b) => b.n - a.n);
-    const merged = [];   /* drop near-duplicates */
-    cl.forEach((q) => { const m = merged.find((x2) => d2(x2.rgb, q.rgb) < 22 * 22); if (m) m.n += q.n; else merged.push(q); });
-    /* drop in-between colors: soft edges of a logo/text blend two real colors (blue + white -> light blue).
-       a small cluster that sits on the line between two bigger ones is folded into the nearer one */
-    const blend = (q) => {
-      for (const A of merged) for (const B of merged) {
-        if (A === B || A === q || B === q || q.n > .4 * Math.min(A.n, B.n)) continue;
-        const ab = [0, 1, 2].map((i) => A.rgb[i] - B.rgb[i]), qb = [0, 1, 2].map((i) => q.rgb[i] - B.rgb[i]);
+    /* soft edges blend two real colors (blue + white -> light blue): a small peak lying between two much bigger ones is folded in */
+    out.sort((a, b) => b.share - a.share);
+    for (let i = out.length - 1; i >= 0; i--) {
+      const q = out[i]; let to = null;
+      for (const A of out) for (const B of out) {
+        if (to || A === B || A === q || B === q || q.share > .4 * Math.min(A.share, B.share)) continue;
+        const ab = [0, 1, 2].map((j) => A.lab[j] - B.lab[j]), qb = [0, 1, 2].map((j) => q.lab[j] - B.lab[j]);
         const L2 = ab[0] ** 2 + ab[1] ** 2 + ab[2] ** 2; if (!L2) continue;
         const t = (qb[0] * ab[0] + qb[1] * ab[1] + qb[2] * ab[2]) / L2; if (t < .06 || t > .94) continue;
-        const off = [0, 1, 2].map((i) => qb[i] - t * ab[i]);
-        if (off[0] ** 2 + off[1] ** 2 + off[2] ** 2 < 24 * 24) return t > .5 ? A : B;
+        const off = [0, 1, 2].map((j) => qb[j] - t * ab[j]);
+        if (off[0] ** 2 + off[1] ** 2 + off[2] ** 2 < 10 * 10) to = t > .5 ? A : B;
       }
-      return null;
-    };
-    for (let i = merged.length - 1; i >= 0; i--) {
-      const q = merged[i], tot = merged.reduce((a, b) => a + b.n, 0);
-      const to = blend(q) || (q.n / tot < .012 ? merged.filter((x2) => x2 !== q).sort((a, b) => d2(a.rgb, q.rgb) - d2(b.rgb, q.rgb))[0] : null);
-      if (to) { to.n += q.n; merged.splice(i, 1); }
+      if (to) { to.share += q.share; to.ws += q.ws; out.splice(i, 1); }
     }
-    merged.sort((a, b) => b.n - a.n);
     const hex = (r) => "#" + r.map((v) => ("0" + v.toString(16)).slice(-2)).join("").toUpperCase();
-    const hsl = (r) => { const [a, b, cc] = r.map((v) => v / 255), mx = Math.max(a, b, cc), mn = Math.min(a, b, cc), l = (mx + mn) / 2, dd = mx - mn; return { s: dd ? dd / (1 - Math.abs(2 * l - 1)) : 0, l }; };
-    const all = merged.map((q) => ({ h: hex(q.rgb), pct: Math.round(q.n / pts.length * 100), rgb: q.rgb, ...hsl(q.rgb) }));
-    /* a usable combination: main color, darkest, lightest, most vivid accent, then the next most used */
-    const combo = [];
-    const push = (q) => { if (q && !combo.some((x2) => d2(x2.rgb, q.rgb) < 40 * 40)) combo.push(q); };
-    push(all[0]);
-    push(all.slice().sort((a, b) => a.l - b.l)[0]);
-    push(all.slice().sort((a, b) => b.l - a.l)[0]);
-    push(all.slice().filter((q) => q.l > .2 && q.l < .85).sort((a, b) => b.s - a.s)[0]);
-    all.forEach((q) => { if (combo.length < 6) push(q); });
+    const all = out.sort((a, b) => b.share - a.share).map((q) => ({ ...q, h: hex(q.rgb), pct: Math.max(1, Math.round(q.share * 100)), l: q.lab[0] / 100, ch: Math.hypot(q.lab[1], q.lab[2]) }));
+    /* combo: main color first; clear white/black if it's a real part of the image;
+       then colors that stand out — vivid, not tiny, and different from the big background colors */
+    const dom = all.filter((q) => q.share > .12);
+    all.forEach((q) => {
+      const others = dom.filter((p) => p !== q), de = others.length ? Math.min.apply(null, others.map((p) => Math.sqrt(d2(p.lab, q.lab)))) : 60;
+      q.score = Math.pow(q.ws, .35) * (.3 + q.ch / 45) * (.4 + Math.min(de, 70) / 35);
+    });
+    const combo = [all[0]];
+    const ok = (q, m) => !combo.includes(q) && combo.every((p) => d2(p.lab, q.lab) > m * m);
+    [all.filter((q) => q.share > .03).sort((a, b) => b.l - a.l)[0], all.filter((q) => q.share > .03).sort((a, b) => a.l - b.l)[0]].forEach((q) => {
+      if (q && (q.l > .85 || q.l < .15) && ok(q, 20)) combo.push(q);
+    });
+    [22, 14, 8, 0].forEach((m) => all.slice().sort((a, b) => b.score - a.score).forEach((q) => { if (combo.length < 6 && ok(q, m)) combo.push(q); }));
     return { all: all.slice(0, 8), combo: combo.slice(0, 6) };
   }
   let imgRes = null;
