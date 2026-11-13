@@ -112,9 +112,13 @@ function chipHtml(project, groups, foot) {
   }).join("") + '</div>').join("");
   const n = groups.reduce((a, g) => a + g.colors.length, 0);
   return '<!doctype html><html><head><meta charset="utf-8"><style>' +
-    '*{box-sizing:border-box;margin:0;padding:0}html,body{background:#0b0910}' +
-    'body{width:1080px;padding:56px;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",sans-serif;color:#f1edf8}' +
-    '.card{background:#15111d;border:1px solid rgba(255,255,255,.09);border-radius:32px;padding:48px 48px 36px}' +
+    '*{box-sizing:border-box;margin:0;padding:0}html,body{overflow:hidden;background:radial-gradient(120% 90% at 20% 0%,#2a1d4a 0%,#120e1c 55%,#0b0910 100%)}' +
+    'body{width:1080px;padding:64px 64px 72px;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",sans-serif;color:#f1edf8}' +
+    '.win{background:#15111d;border-radius:22px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.12),0 40px 90px rgba(0,0,0,.6),0 12px 30px rgba(0,0,0,.4)}' +
+    '.bar{position:relative;height:54px;display:flex;align-items:center;padding:0 22px;background:linear-gradient(180deg,#2a2436,#221d2c);border-bottom:1px solid rgba(0,0,0,.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}' +
+    '.tl{display:flex;gap:10px}.tl i{width:15px;height:15px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}.tl i:nth-child(1){background:#ff5f57}.tl i:nth-child(2){background:#febc2e}.tl i:nth-child(3){background:#28c840}' +
+    '.ttl{position:absolute;left:0;right:0;text-align:center;font-size:17px;font-weight:600;color:#bdb5cc;pointer-events:none}' +
+    '.card{padding:44px 48px 34px}' +
     '.top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:34px}' +
     'h1{font-size:46px;font-weight:900;letter-spacing:-1px;line-height:1.15;word-break:keep-all}.cnt{color:#8a8197;font-size:20px;font-weight:700;white-space:nowrap;padding-left:20px}' +
     '.gn{font-size:22px;font-weight:800;color:#b69bff;margin:26px 0 14px}.gn:first-child{margin-top:0}' +
@@ -126,7 +130,7 @@ function chipHtml(project, groups, foot) {
     '.logo{display:flex;align-items:center;gap:12px;font-size:26px;color:#b4abc6;font-weight:500}.logo b{color:#f1edf8;font-weight:900}' +
     '.dot{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#8a5cff 60%);box-shadow:0 0 14px #8a5cff}' +
     '.orb svg{width:22px;height:22px;color:#1a1424}.ft{font-size:17px;color:#a49bb3}' +
-    '</style></head><body><div class="card"><div class="top"><h1>' + esc(project) + '</h1></div>' + body +
-    '<div class="foot"><div class="logo"><span class="dot"></span><span>0202<b>Swatch</b></span></div></div></div></body></html>';
+    '</style></head><body><div class="win"><div class="bar"><div class="tl"><i></i><i></i><i></i></div><div class="ttl">' + esc(project) + ' — 0202Swatch</div></div><div class="card"><div class="top"><h1>' + esc(project) + '</h1></div>' + body +
+    '<div class="foot"><div class="logo"><span class="dot"></span><span>0202<b>Swatch</b></span></div></div></div></div></body></html>';
 }
 module.exports = { normHex, liveGroups, toCode, parseText, aseEncode, aseDecode, acoEncode, acoDecode, safeName, chipHtml };
