@@ -658,7 +658,10 @@ async function aiFiles(files) {
 function aiRun(model, input) {
   if (!aiWorker) {
     const { Worker } = require("worker_threads");
-    aiWorker = new Worker(path.join(__dirname, "ai-worker.js"), { workerData: { dir: AI_DIR } });
+    /* a worker can't start from inside app.asar -> run a copy from the data folder */
+    let wf = path.join(__dirname, "ai-worker.js");
+    if (/\.asar([\\/]|$)/.test(__dirname)) { const c2 = path.join(AI_DIR, "ai-worker.js"); try { fs.writeFileSync(c2, fs.readFileSync(wf)); wf = c2; } catch (e) {} }
+    aiWorker = new Worker(wf, { workerData: { dir: AI_DIR } });
     aiWorker.on("message", (m) => { const w = aiWait.get(m.id); if (w) { aiWait.delete(m.id); m.err ? w.reject(new Error(m.err)) : w.resolve(m.mask); } });
     aiWorker.on("error", (e) => { log("ai worker " + e.message); aiWait.forEach((w) => w.reject(e)); aiWait.clear(); aiWorker = null; });
     aiWorker.on("exit", () => { aiWorker = null; });
