@@ -1117,9 +1117,9 @@
     const img = new Image(), seq = ++imgSeq;
     img.onload = () => {
       const r = extractColors(img); if (!r) return toast(L("색을 찾지 못했어요", "No colors found", "色が見つかりません"));
-      slide("img", $("#imgBox"), imgRes ? $("#imgBox").getBoundingClientRect().height : 0, null, (x) => x, () => { imgRes = { src, r, ai: "busy" }; renderImg(); }, null);
+      slide("img", $("#imgBox"), imgRes ? $("#imgBox").getBoundingClientRect().height : 0, null, (x) => x, () => { imgRes = { src, r, ai: "none" }; renderImg(); }, null);
       /* then ask the on-device AI where the main subject is, and redo the combo around it */
-      if (!window.sw.subjectMask) return;
+      if (true || !window.sw.subjectMask) { imgRes && (imgRes.ai = "none"); return; }   /* AI subject finder off: too slow */
       window.sw.subjectMask(src, r.W, r.H).then((mask) => {
         if (seq !== imgSeq || !imgRes || imgRes.src !== src) return;
         const r2 = mask ? extractColors(img, mask) : null;
